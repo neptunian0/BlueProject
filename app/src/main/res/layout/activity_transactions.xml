@@ -46,15 +46,26 @@
             android:textSize="35sp" />
     </RelativeLayout>
 
-    <LinearLayout
+    <RelativeLayout
         android:orientation="vertical"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:layout_weight="1">
 
+        <TextView
+            android:id="@+id/noTransactions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/transactionList"
+            android:layout_alignTop="@+id/transactionList"
+            android:layout_alignRight="@+id/transactionList"
+            android:layout_alignBottom="@+id/transactionList"
+            android:gravity="center_horizontal"
+            android:textSize="20dp" />
+
         <ListView
             android:id="@+id/transactionList"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
-    </LinearLayout>
+    </RelativeLayout>
 </LinearLayout>
