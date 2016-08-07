@@ -263,12 +263,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
         if(timeOfDay >= 0 && timeOfDay < 12){
             greeting += "Good morning, ";
-        }else if(timeOfDay >= 12 && timeOfDay < 16){
+        }else if(timeOfDay >= 12 && timeOfDay < 17){
             greeting += "Good afternoon, ";
-        }else if(timeOfDay >= 16 && timeOfDay < 21){
+        }else if(timeOfDay >= 17 && timeOfDay < 24){
             greeting += "Good evening, ";
-        }else if(timeOfDay >= 21 && timeOfDay < 24){
-            greeting += "Good night, ";
         }
         g.setText(greeting + customers[0].getGivenName());
 

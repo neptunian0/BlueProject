@@ -40,19 +40,25 @@ public class TransactionsAdapter extends ArrayAdapter<Transactions> {
         catch (ParseException ex){
             Log.d("Exception", "" + ex);
         }
-        transactionDateDescription.setText(dateTime + " "
+        transactionDateDescription.setText(dateTime + "  "
                 + transaction.getTransactionDescription());
+
+        //format the transaction amount
         transactionAmount.setText(formatTransactionAmount(transaction.getTransactionAmount()));
         return customView;
     }
 
     public static String formatTransactionAmount(Double d){
         DecimalFormat formatter = new DecimalFormat("#,##0.00");
-        return formatter.format(d);
+        if(d < 0){
+            return "-" + formatter.format(d).replace("-", "£");
+        }
+        return "£" + formatter.format(d);
     }
 
     private String modifyDateLayout(String inputDate) throws ParseException{
         Date date = new SimpleDateFormat("yyyy-MM-dd").parse(inputDate);
         return new SimpleDateFormat("dd MMM yyyy").format(date);
     }
+
 }

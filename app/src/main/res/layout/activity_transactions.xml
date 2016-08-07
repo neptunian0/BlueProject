@@ -15,7 +15,7 @@
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:layout_centerVertical="true"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:src="@drawable/pound_coin"
             android:tint="#e3ffffff" />
 
@@ -47,21 +47,11 @@
     </RelativeLayout>
 
     <RelativeLayout
+        android:id="@+id/transactionListLayout"
         android:orientation="vertical"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="0dp"
         android:layout_weight="1">
-
-        <TextView
-            android:id="@+id/noTransactions"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/transactionList"
-            android:layout_alignTop="@+id/transactionList"
-            android:layout_alignRight="@+id/transactionList"
-            android:layout_alignBottom="@+id/transactionList"
-            android:gravity="center_horizontal"
-            android:textSize="20dp" />
 
         <ListView
             android:id="@+id/transactionList"

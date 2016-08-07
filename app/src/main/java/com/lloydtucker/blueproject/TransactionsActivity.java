@@ -29,7 +29,7 @@ public class TransactionsActivity extends AppCompatActivity {
     String response;
     String bearer;
     String accountId;
-    boolean transactions_received = false;
+    boolean transactions_received;
     ArrayList<Transactions> transactions;
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,28 +57,22 @@ public class TransactionsActivity extends AppCompatActivity {
             accountType.setText(accountT);
             accountDetails.setText(accountNo + "   |   "
                     + AccountAdapter.formatSortCode(sortCode));
-            accountBalance.setText(AccountAdapter.formatBalance(accountBal));
+            accountBalance.setText("£" + AccountAdapter.formatBalance(accountBal));
             AccountAdapter.pickAccountImage(accountT, imageView);
         }
         //Make the API call
+        //clear the old data
+        transactions_received = false;
         loadContent();
         //Wait for the contacts to be loaded into the array
         while(!transactions_received) {
         }
         //convert ArrayList of Transactions to an Array
-        Log.d("Response", "" + transactions.size());
-        if(transactions.size() > 0) {
-            Transactions[] transArr = transactions.toArray(
-                    new Transactions[transactions.size()]);
-            adapter = new TransactionsAdapter(this,
-                    transArr);
-            listView.setAdapter(adapter);
-        }
-        //this isn't working...
-        else{
-            TextView noTrans = (TextView) findViewById(R.id.noTransactions);
-            noTrans.setText("No transaction history found");
-        }
+        Transactions[] transArr = transactions.toArray(
+                new Transactions[transactions.size()]);
+        adapter = new TransactionsAdapter(this,
+                transArr);
+        listView.setAdapter(adapter);
     }
 
     public void loadContent(){
@@ -94,7 +88,7 @@ public class TransactionsActivity extends AppCompatActivity {
                     if (response != null) {
                         try {
                             JSONArray jsonArr = new JSONArray(response);
-                            transactions = new ArrayList<Transactions>();
+                            transactions = new ArrayList<>();
 
                             // looping through All Contacts
                             //should be i < jsonArr.length(), but only want 10 customers

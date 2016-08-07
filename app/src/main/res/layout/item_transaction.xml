@@ -6,13 +6,15 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
         android:paddingLeft="15dp"
         android:paddingRight="15dp"
         android:layout_centerVertical="true"
-        android:text="04 Aug Amazon UK Marketplace"
-        android:id="@+id/transactionDateDesc" />
+        android:textStyle="bold"
+        android:text="04 Aug 2016 Amazon UK Marketplace"
+        android:id="@+id/transactionDateDesc"
+        android:textSize="15dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -21,8 +23,10 @@
         android:paddingBottom="5dp"
         android:paddingLeft="15dp"
         android:paddingRight="15dp"
-        android:layout_alignParentRight="true"
+        android:textStyle="bold"
+        android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:text="£11.87"
-        android:id="@+id/transactionAmount" />
+        android:id="@+id/transactionAmount"
+        android:textSize="15dp" />
 </RelativeLayout>
