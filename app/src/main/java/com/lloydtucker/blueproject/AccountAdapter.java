@@ -52,24 +52,12 @@ public class AccountAdapter extends ArrayAdapter<Accounts> {
                         + account.getAccountCurrency());
         }
         DecimalFormat formatter = new DecimalFormat("#,##0.00");
-        accountBalance.setText(currency + formatter.format(account.getAccountBalance()));
-        int drawableSource = 0;
-        switch(accountType){
-            case "Standard Current Account":
-                drawableSource = R.drawable.pound_coin;
-                break;
-            case "90-day Savings Account":
-                drawableSource = R.drawable.piggy_bank;
-                break;
-            default:
-                throw new IllegalArgumentException("Unsupported account type: "
-                        + accountType);
-        }
-        accountImage.setImageResource(drawableSource);
+        accountBalance.setText(currency + formatBalance(account.getAccountBalance()));
+        pickAccountImage(accountType, accountImage);
         return customView;
     }
 
-    public String formatSortCode(String s){
+    public static String formatSortCode(String s){
         String formatted = "";
         if(s.length() % 2 != 0){
             throw new IllegalArgumentException("Invalid Sort Code: "
@@ -83,5 +71,26 @@ public class AccountAdapter extends ArrayAdapter<Accounts> {
             }
         }
         return formatted;
+    }
+
+    public static String formatBalance(Double d){
+        DecimalFormat formatter = new DecimalFormat("#,##0.00");
+        return formatter.format(d);
+    }
+
+    public static void pickAccountImage(String s, ImageView i){
+        int drawableSource = 0;
+        switch(s){
+            case "Standard Current Account":
+                drawableSource = R.drawable.pound_coin;
+                break;
+            case "90-day Savings Account":
+                drawableSource = R.drawable.piggy_bank;
+                break;
+            default:
+                throw new IllegalArgumentException("Unsupported account type: "
+                        + s);
+        }
+        i.setImageResource(drawableSource);
     }
 }

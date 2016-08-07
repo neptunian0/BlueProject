@@ -1,12 +1,15 @@
 package com.lloydtucker.blueproject;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -24,7 +27,7 @@ import java.util.Date;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener{
 
     private static final String TAG = MainActivity.class.getSimpleName();
     //public final static String EXTRA_MESSAGE = "com.lloydtucker.testproject.CONTACTS";
@@ -34,8 +37,10 @@ public class MainActivity extends AppCompatActivity {
     String response;
     String bearer;
 
-    //JSON Node Names
-    private static final String TAG_ID = "id";
+    /*
+     * CUSTOMER TAGS
+     */
+    static final String TAG_ID = "id";
     private static final String TAG_GIVEN_NAME = "givenName";
     private static final String TAG_FAMILY_NAME = "familyName";
     private static final String TAG_ADDRESS_1 = "address1";
@@ -45,15 +50,26 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG_POST_CODE = "postCode";
     private static final String TAG_MOBILE_PHONE = "mobilePhone";
 
+    /*
+     * ACCOUNT TAGS
+     */
     private static final String TAG_CUSTOMER_ID = "customerId";
-    private static final String TAG_SORT_CODE = "sortCode";
-    private static final String TAG_ACCOUNT_NUMBER = "accountNumber";
-    private static final String TAG_ACCOUNT_TYPE = "accountType";
-    private static final String TAG_ACCOUNT_FRIENDLY_NAME = "accountFriendlyName";
-    private static final String TAG_ACCOUNT_BALANCE = "accountBalance";
+    static final String TAG_SORT_CODE = "sortCode";
+    static final String TAG_ACCOUNT_NUMBER = "accountNumber";
+    static final String TAG_ACCOUNT_TYPE = "accountType";
+    static final String TAG_ACCOUNT_FRIENDLY_NAME = "accountFriendlyName";
+    static final String TAG_ACCOUNT_BALANCE = "accountBalance";
     private static final String TAG_ACCOUNT_CURRENCY = "accountCurrency";
 
-    private static final String TAG_BEARER = "bearer";
+    /*
+     * TRANSACTION TAGS
+     */
+    static final String TAG_TRANSACTION_DATE = "transactionDateTime";
+    static final String TAG_TRANSACTION_DESCRIPTION = "transactionDescription";
+    static final String TAG_TRANSACTION_AMOUNT = "transactionAmount";
+    static final String TAG_TRANSACTION_CURRENCY = "transactionCurrency";
+
+    static final String TAG_BEARER = "bearer";
 
     private static final String TAG_CUSTOMERS = "customer";
     private static final String TAG_ACCOUNTS = "accounts";
@@ -72,6 +88,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         listView = (ListView) findViewById(R.id.list);
+        listView.setOnItemClickListener(this); //clickable account items
         TextView greetingView = (TextView) findViewById(R.id.greeting);
         TextView greetingDateView = (TextView) findViewById(R.id.greetDate);
         client = new OkHttpClient();
@@ -259,5 +276,19 @@ public class MainActivity extends AppCompatActivity {
         DateFormat dateFormat = new SimpleDateFormat("dd MMMMM yyyy");
         Date date = new Date();
         gD.setText(dateFormat.format(date));
+    }
+
+    public void onItemClick(AdapterView<?> l, View v, int position, long id){
+        Log.d("Click", "You clicked Item: " + id + " at position:" + position);
+        // Then you start a new Activity via Intent
+        Intent intent = new Intent(this, TransactionsActivity.class);
+        intent.putExtra(TAG_ID, accounts[position].getId());
+        intent.putExtra(TAG_ACCOUNT_TYPE, accounts[position].getAccountType());
+        intent.putExtra(TAG_ACCOUNT_NUMBER, accounts[position].getAccountNumber());
+        intent.putExtra(TAG_SORT_CODE, accounts[position].getSortCode());
+        intent.putExtra(TAG_ACCOUNT_BALANCE, accounts[position].getAccountBalance());
+        intent.putExtra(TAG_BEARER, bearer);
+        Log.d("Click", accounts[position].getAccountNumber());
+        startActivity(intent);
     }
 }
