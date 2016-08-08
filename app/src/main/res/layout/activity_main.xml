@@ -29,7 +29,7 @@
             android:layout_alignBottom="@+id/bluenose"
             android:gravity="center"
             android:textStyle="bold"
-            android:textSize="40dp"
+            android:textSize="38sp"
             android:textColor="@android:color/white" />
 
         <TextView
@@ -41,7 +41,7 @@
             android:layout_alignRight="@+id/bluenose"
             android:layout_alignBottom="@+id/bluenose"
             android:gravity="bottom|center"
-            android:textSize="25dp"
+            android:textSize="20sp"
             android:paddingBottom="20dp"
             android:textColor="@android:color/white" />
     </RelativeLayout>

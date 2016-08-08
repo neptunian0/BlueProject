@@ -31,6 +31,7 @@ public class TransactionsActivity extends AppCompatActivity {
     String accountId;
     boolean transactions_received;
     ArrayList<Transactions> transactions;
+    Transactions[] transArr;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,11 +69,17 @@ public class TransactionsActivity extends AppCompatActivity {
         while(!transactions_received) {
         }
         //convert ArrayList of Transactions to an Array
-        Transactions[] transArr = transactions.toArray(
+        transArr = transactions.toArray(
                 new Transactions[transactions.size()]);
         adapter = new TransactionsAdapter(this,
                 transArr);
         listView.setAdapter(adapter);
+    }
+
+    @Override
+    public void onBackPressed(){
+        Log.d("Response", "Back button pressed");
+        finish();
     }
 
     public void loadContent(){

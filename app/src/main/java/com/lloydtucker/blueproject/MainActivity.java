@@ -20,9 +20,9 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
@@ -271,9 +271,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         g.setText(greeting + customers[0].getGivenName());
 
         //set the date at the bottom of the header greeting
+        /*
         DateFormat dateFormat = new SimpleDateFormat("dd MMMMM yyyy");
         Date date = new Date();
-        gD.setText(dateFormat.format(date));
+        gD.setText(dateFormat.format(date));*/
+        DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.LONG, Locale.UK);
+        gD.setText(dateFormat.format(new Date()));
     }
 
     public void onItemClick(AdapterView<?> l, View v, int position, long id){
