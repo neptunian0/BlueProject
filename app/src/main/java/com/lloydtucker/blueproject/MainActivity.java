@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.Locale;
 
 import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener{
 
@@ -33,9 +32,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     //public final static String EXTRA_MESSAGE = "com.lloydtucker.testproject.CONTACTS";
     private ListView listView;
     private ArrayAdapter<Accounts> adapter;
-    OkHttpClient client;
     String response;
-    String bearer;
 
     /*
      * CUSTOMER TAGS
@@ -53,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     /*
      * ACCOUNT TAGS
      */
-    private static final String TAG_CUSTOMER_ID = "customerId";
+    static final String TAG_CUSTOMER_ID = "customerId";
     static final String TAG_SORT_CODE = "sortCode";
     static final String TAG_ACCOUNT_NUMBER = "accountNumber";
     static final String TAG_ACCOUNT_TYPE = "accountType";
@@ -68,8 +65,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     static final String TAG_TRANSACTION_DESCRIPTION = "transactionDescription";
     static final String TAG_TRANSACTION_AMOUNT = "transactionAmount";
     static final String TAG_TRANSACTION_CURRENCY = "transactionCurrency";
-
-    static final String TAG_BEARER = "bearer";
 
     private static final String TAG_CUSTOMERS = "customer";
     private static final String TAG_ACCOUNTS = "accounts";
@@ -91,10 +86,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         listView.setOnItemClickListener(this); //clickable account items
         TextView greetingView = (TextView) findViewById(R.id.greeting);
         TextView greetingDateView = (TextView) findViewById(R.id.greetDate);
-        client = new OkHttpClient();
 
         //Make the API call
-        getBearer();
         loadContent();
         //Wait for the contacts to be loaded into the array
         while(!contacts_retrieved) {
@@ -111,10 +104,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             protected Void doInBackground(Void... params){
                 try {
-                    while(bearer == null){
-                    }
-                    response = ApiCall.GET(client, buildURL(), bearer);
-                    Log.d("Response", "" + response);
+                    response = ApiCall.GET(buildURL());
                     //Parse the response string here
                     if (response != null) {
                         try {
@@ -133,7 +123,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                                 cus.setPostCode(c.getString(TAG_POST_CODE));
 
                                 customers[i] = cus;
-                                Log.d("Response", "" + customers[i]);
                             }
                             response = null;
 
@@ -141,8 +130,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                             * Get Accounts
                             */
                             if(customers[0] != null){
-                                response = ApiCall.GET(client, buildURL(customers[0].getId()), bearer);
-                                Log.d("Response", "" + response);
+                                response = ApiCall.GET(buildURL(customers[0].getId()));
                                 if(response != null){
                                     try {
                                         jsonArr = new JSONArray(response);
@@ -163,7 +151,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                                             acc.setAccountCurrency(c.getString(TAG_ACCOUNT_CURRENCY));
 
                                             accounts[i] = acc;
-                                            Log.d("Response", "" + accounts[i]);
                                         }
                                         response = null;
                                     }
@@ -174,33 +161,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                                 }
                             }
                             contacts_retrieved = true;
-                        }
-                        catch (JSONException e) {
-                            e.printStackTrace();
-                            Log.d(TAG, "ERROR: JSONException");
-                        }
-                    }
-                }catch(IOException e){
-                    e.printStackTrace();
-                }
-                return null;
-            }
-        }.execute();
-    }
-
-    private void getBearer(){
-        new AsyncTask<Void, Void, Void>() {
-            @Override
-            protected Void doInBackground(Void... params){
-                try {
-                    response = ApiCall.GET_BEARER(client, buildBearerURL());
-                    Log.d("Bearer", "" + response);
-                    //Parse the response string here
-                    if (response != null) {
-                        try {
-                            JSONObject jsonObj = new JSONObject(response);
-                            response = null;
-                            bearer = jsonObj.getString(TAG_BEARER);
                         }
                         catch (JSONException e) {
                             e.printStackTrace();
@@ -239,15 +199,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         return url;
     }
 
-    public static HttpUrl buildBearerURL(){
-        HttpUrl url = new HttpUrl.Builder()
-                .scheme("https")
-                .host("cloudlevel.io")
-                .addPathSegment("token")
-                .build();
-        return url;
-    }
-
     public boolean isOnline(){
         ConnectivityManager cm = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -271,16 +222,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         g.setText(greeting + customers[0].getGivenName());
 
         //set the date at the bottom of the header greeting
-        /*
-        DateFormat dateFormat = new SimpleDateFormat("dd MMMMM yyyy");
-        Date date = new Date();
-        gD.setText(dateFormat.format(date));*/
         DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.LONG, Locale.UK);
         gD.setText(dateFormat.format(new Date()));
     }
 
     public void onItemClick(AdapterView<?> l, View v, int position, long id){
-        Log.d("Click", "You clicked Item: " + id + " at position:" + position);
         // Then you start a new Activity via Intent
         Intent intent = new Intent(this, TransactionsActivity.class);
         intent.putExtra(TAG_ID, accounts[position].getId());
@@ -288,8 +234,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         intent.putExtra(TAG_ACCOUNT_NUMBER, accounts[position].getAccountNumber());
         intent.putExtra(TAG_SORT_CODE, accounts[position].getSortCode());
         intent.putExtra(TAG_ACCOUNT_BALANCE, accounts[position].getAccountBalance());
-        intent.putExtra(TAG_BEARER, bearer);
-        Log.d("Click", accounts[position].getAccountNumber());
+        intent.putExtra(TAG_CUSTOMER_ID, customers[0].getId());
         startActivity(intent);
     }
 }

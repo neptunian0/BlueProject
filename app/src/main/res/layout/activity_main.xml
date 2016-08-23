@@ -62,41 +62,6 @@
             android:paddingTop="25dp"
             android:divider="@android:color/transparent"
             android:dividerHeight="15dp" />
+
     </LinearLayout>
 </LinearLayout>
-
-    <!--
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="5"
-        android:orientation="horizontal"
-        android:padding="10dp">
-
-        <ImageView
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:src="@drawable/rbs_logo_2"
-            android:layout_weight="3" />
-
-        <TextView
-                android:id="@+id/greeting"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                android:text="Hello World!"
-                android:textSize="30dp"
-                android:gravity="center_vertical" />
-
-    </LinearLayout>
-    -->
-    <!--
-        <Button
-            android:id="@+id/connect"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:text="Connect"
-            android:onClick="openListView"/>
-        -->

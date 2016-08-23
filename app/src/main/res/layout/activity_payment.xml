@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.lloydtucker.blueproject.PaymentActivity">
+
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:background="#f2f2f2"
+        android:padding="15dp" >
+
+        <ImageView
+            android:id="@+id/paymentImage"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
+            android:src="@drawable/pound_coin"
+            android:tint="#e3ffffff" />
+
+        <TextView
+            android:id="@+id/paymentFrom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="From:"
+            android:layout_marginBottom="2dp"
+            android:textSize="18dp" />
+
+        <TextView
+            android:id="@+id/paymentAccountType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/paymentFrom"
+            android:text="Current account"
+            android:layout_marginBottom="5dp"
+            android:textStyle="bold"
+            android:textSize="25dp" />
+
+        <TextView
+            android:id="@+id/paymentAccountDetails"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/paymentAccountType"
+            android:layout_marginBottom="15dp"
+            android:text="12345678 | 12-34-56 | Tucker, Lloyd"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/paymentAccountBalance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/paymentAccountDetails"
+            android:text="£1500.00"
+            android:textSize="35sp" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="15dp"
+        android:id="@+id/paymentLayout">
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/paymentSortCodeLayout"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent">
+
+            <EditText
+                android:id='@+id/paymentSortCode'
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:inputType="number"
+                android:maxLength="6"
+                android:hint="Sort Code"/>
+
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/paymentAccountNumberLayout"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_marginTop="20dp">
+
+            <EditText
+                android:id='@+id/paymentAccountNumber'
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:inputType="number"
+                android:maxLength="8"
+                android:hint="Account Number"/>
+
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/paymentReferenceLayout"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_marginTop="20dp">
+
+            <EditText
+                android:id='@+id/paymentReference'
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:hint="Reference"/>
+
+        </android.support.design.widget.TextInputLayout>
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/paymentAmountLayout"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_marginTop="20dp">
+
+            <EditText
+                android:id='@+id/paymentAmount'
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:inputType="numberDecimal"
+                android:hint="Amount"/>
+
+        </android.support.design.widget.TextInputLayout>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Make Payment"
+            android:id="@+id/paymentMakePayment"
+            android:enabled="false"
+            android:onClick="submitPayment"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/paymentOTPLayout"
+        android:padding="15dp"
+        android:visibility="gone">
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/paymentOTPCodeLayout"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent">
+
+            <EditText
+                android:id='@+id/paymentOTPCode'
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:inputType="number"
+                android:ems="10"
+                android:hint="OTP Code"/>
+
+        </android.support.design.widget.TextInputLayout>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Submit"
+            android:id="@+id/submitOTPCode"
+            android:onClick="submitOTPCode"/>
+
+    </LinearLayout>
+
+</LinearLayout>

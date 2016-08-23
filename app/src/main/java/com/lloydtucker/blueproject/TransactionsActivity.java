@@ -1,9 +1,11 @@
 package com.lloydtucker.blueproject;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -17,7 +19,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import okhttp3.HttpUrl;
-import okhttp3.OkHttpClient;
 
 public class TransactionsActivity extends AppCompatActivity {
     private static final String TAG = TransactionsActivity.class.getSimpleName();
@@ -25,13 +26,11 @@ public class TransactionsActivity extends AppCompatActivity {
     private ArrayAdapter<Transactions> adapter;
     private TextView accountBalance, accountDetails, accountType;
     private ImageView imageView;
-    OkHttpClient client;
-    String response;
-    String bearer;
-    String accountId;
-    boolean transactions_received;
-    ArrayList<Transactions> transactions;
-    Transactions[] transArr;
+    private String custId, response, accountId, accountT, accountNo, sortCode;
+    private double accountBal;
+    private boolean transactions_received;
+    private ArrayList<Transactions> transactions;
+    private Transactions[] transArr;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,17 +41,16 @@ public class TransactionsActivity extends AppCompatActivity {
         accountType = (TextView) findViewById(R.id.transactionAccountType);
         accountDetails = (TextView) findViewById(R.id.transactionAccountDetails);
         accountBalance = (TextView) findViewById(R.id.transactionAccountBalance);
-        client = new OkHttpClient();
 
         //Unpack the bundle
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            String accountT = extras.getString(MainActivity.TAG_ACCOUNT_TYPE);
-            String accountNo = extras.getString(MainActivity.TAG_ACCOUNT_NUMBER);
-            String sortCode = extras.getString(MainActivity.TAG_SORT_CODE);
+            accountT = extras.getString(MainActivity.TAG_ACCOUNT_TYPE);
+            accountNo = extras.getString(MainActivity.TAG_ACCOUNT_NUMBER);
+            sortCode = extras.getString(MainActivity.TAG_SORT_CODE);
             accountId = extras.getString(MainActivity.TAG_ID);
-            Double accountBal = extras.getDouble(MainActivity.TAG_ACCOUNT_BALANCE);
-            bearer = extras.getString(MainActivity.TAG_BEARER);
+            accountBal = extras.getDouble(MainActivity.TAG_ACCOUNT_BALANCE);
+            custId = extras.getString(MainActivity.TAG_CUSTOMER_ID);
 
             //update the TextViews and ImageView
             accountType.setText(accountT);
@@ -78,7 +76,6 @@ public class TransactionsActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed(){
-        Log.d("Response", "Back button pressed");
         finish();
     }
 
@@ -87,10 +84,7 @@ public class TransactionsActivity extends AppCompatActivity {
             @Override
             protected Void doInBackground(Void... params){
                 try {
-                    while(bearer == null){
-                    }
-                    response = ApiCall.GET(client, buildURL(accountId), bearer);
-                    Log.d("Response", "" + response);
+                    response = ApiCall.GET(buildURL(accountId));
                     //Parse the response string here
                     if (response != null) {
                         try {
@@ -112,7 +106,7 @@ public class TransactionsActivity extends AppCompatActivity {
                                         MainActivity.TAG_TRANSACTION_AMOUNT));
 
                                 transactions.add(tra);
-                                Log.d("Response", "" + transactions.get(i));
+                                //Log.d("Response", "" + transactions.get(i));
                             }
                             transactions_received = true;
                         }
@@ -141,5 +135,17 @@ public class TransactionsActivity extends AppCompatActivity {
                 .addQueryParameter("sortOrder", "-transactionDateTime")
                 .build();
         return url;
+    }
+
+    public void makePayment(View v){
+        Log.d("Click", "You clicked Make Payment");
+        Intent intent = new Intent(this, PaymentActivity.class);
+        intent.putExtra(MainActivity.TAG_ID, accountId);
+        intent.putExtra(MainActivity.TAG_ACCOUNT_TYPE, accountT);
+        intent.putExtra(MainActivity.TAG_ACCOUNT_NUMBER, accountNo);
+        intent.putExtra(MainActivity.TAG_SORT_CODE, sortCode);
+        intent.putExtra(MainActivity.TAG_ACCOUNT_BALANCE, accountBal);
+        intent.putExtra(MainActivity.TAG_CUSTOMER_ID, custId);
+        startActivity(intent);
     }
 }
