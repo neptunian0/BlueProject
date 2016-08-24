@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:id="@+id/transactionsLayout">
 
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/transactionAccount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:background="#f2f2f2"
-        android:padding="15dp" >
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/account_rounded_corner"
+        android:padding="15dp">
 
         <ImageView
             android:id="@+id/transactionImage"
@@ -26,7 +31,9 @@
             android:text="Current account"
             android:layout_marginBottom="5dp"
             android:textStyle="bold"
-            android:textSize="25dp" />
+            android:textSize="35dp"
+            android:textColor="#FFFFFF"
+            android:fontFamily="sans-serif-condensed"/>
 
         <TextView
             android:id="@+id/transactionAccountDetails"
@@ -35,7 +42,9 @@
             android:layout_below="@+id/transactionAccountType"
             android:layout_marginBottom="15dp"
             android:text="12345678 | 12-34-56 | Tucker, Lloyd"
-            android:textSize="20sp" />
+            android:textSize="30sp"
+            android:textColor="#FFFFFF"
+            android:fontFamily="sans-serif-condensed"/>
 
         <TextView
             android:id="@+id/transactionAccountBalance"
@@ -43,7 +52,9 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/transactionAccountDetails"
             android:text="£1500.00"
-            android:textSize="35sp" />
+            android:textSize="45sp"
+            android:textColor="#FFFFFF"
+            android:fontFamily="sans-serif-condensed"/>
     </RelativeLayout>
 
     <RelativeLayout
@@ -51,7 +62,9 @@
         android:orientation="vertical"
         android:layout_width="fill_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp">
 
         <ListView
             android:id="@+id/transactionList"
@@ -69,6 +82,15 @@
             android:layout_height="wrap_content"
             android:text="Make Payment"
             android:id="@+id/paymentButton"
-            android:onClick="makePayment"/>
+            android:background="@drawable/button_rounded_corner"
+            android:onClick="makePayment"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="5dp"
+            android:textColor="#FFFFFF"
+            android:fontFamily="sans-serif-condensed"
+            android:textStyle="bold"
+            android:textSize="25dp"/>
     </LinearLayout>
 </LinearLayout>

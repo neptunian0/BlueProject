@@ -22,7 +22,10 @@
             android:name=".TransactionsActivity"
             android:label="@string/title_activity_transactions"
             android:theme="@style/AppTheme" />
-        <activity android:name=".PaymentActivity"></activity>
+        <activity
+            android:name=".PaymentActivity"
+            android:theme="@style/AppTheme"
+            />
     </application>
 
 </manifest>

@@ -29,6 +29,7 @@ import okhttp3.HttpUrl;
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener{
 
     private static final String TAG = MainActivity.class.getSimpleName();
+    static float sAnimatorScale = 1;
     //public final static String EXTRA_MESSAGE = "com.lloydtucker.testproject.CONTACTS";
     private ListView listView;
     private ArrayAdapter<Accounts> adapter;
@@ -69,6 +70,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private static final String TAG_CUSTOMERS = "customer";
     private static final String TAG_ACCOUNTS = "accounts";
     private static final String TAG_TRANSACTIONS = "transactions";
+
+    /*
+    * ANIMATION TAGS
+    */
+    static final String TAG_ACCOUNT_TOP = "accountTop";
+    static final String TAG_ACCOUNT_LEFT = "accountLeft";
 
     //JSON Array
     //JSONArray contacts = new JSONArray();
@@ -228,13 +235,21 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
     public void onItemClick(AdapterView<?> l, View v, int position, long id){
         // Then you start a new Activity via Intent
-        Intent intent = new Intent(this, TransactionsActivity.class);
+        Intent intent = new Intent(MainActivity.this, TransactionsActivity.class);
+        int[] screenLocation = new int[2];
+        v.getLocationOnScreen(screenLocation);
+
         intent.putExtra(TAG_ID, accounts[position].getId());
         intent.putExtra(TAG_ACCOUNT_TYPE, accounts[position].getAccountType());
         intent.putExtra(TAG_ACCOUNT_NUMBER, accounts[position].getAccountNumber());
         intent.putExtra(TAG_SORT_CODE, accounts[position].getSortCode());
         intent.putExtra(TAG_ACCOUNT_BALANCE, accounts[position].getAccountBalance());
         intent.putExtra(TAG_CUSTOMER_ID, customers[0].getId());
+        intent.putExtra(TAG_ACCOUNT_TOP, screenLocation[0]);
+        intent.putExtra(TAG_ACCOUNT_LEFT, screenLocation[1]);
         startActivity(intent);
+
+        //Don't want normal window animations to take place
+        overridePendingTransition(0, 0);
     }
 }
