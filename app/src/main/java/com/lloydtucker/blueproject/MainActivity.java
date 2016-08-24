@@ -29,7 +29,7 @@ import okhttp3.HttpUrl;
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener{
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    static float sAnimatorScale = 1;
+    static float sAnimatorScale = 2;
     //public final static String EXTRA_MESSAGE = "com.lloydtucker.testproject.CONTACTS";
     private ListView listView;
     private ArrayAdapter<Accounts> adapter;

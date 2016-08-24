@@ -2,12 +2,12 @@ package com.lloydtucker.blueproject;
 
 import android.animation.ObjectAnimator;
 import android.animation.TimeInterpolator;
+import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -29,7 +29,7 @@ import java.util.ArrayList;
 
 import okhttp3.HttpUrl;
 
-public class TransactionsActivity extends AppCompatActivity {
+public class TransactionsActivity extends Activity {
     private static final TimeInterpolator sDecelerator = new DecelerateInterpolator();
     private static final TimeInterpolator sAccelerator = new AccelerateInterpolator();
     private static final String TAG = TransactionsActivity.class.getSimpleName();
@@ -94,8 +94,8 @@ public class TransactionsActivity extends AppCompatActivity {
                     // to the screen and each other
                     int[] screenLocation = new int[2];
                     transactionAccount.getLocationOnScreen(screenLocation);
-                    accountDeltaTop = oldAccountTop - screenLocation[0];
-                    accountDeltaLeft = oldAccountLeft - screenLocation[1];
+                    accountDeltaLeft = oldAccountLeft - screenLocation[0];
+                    accountDeltaTop = oldAccountTop - screenLocation[1];
 
                     //update the TextViews and ImageView data
                     accountType.setText(accountT);
@@ -151,15 +151,15 @@ public class TransactionsActivity extends AppCompatActivity {
 
         // Fade in the black background
         ObjectAnimator bgAnim = ObjectAnimator.ofInt(transactionsBackground, "alpha", 0, 255);
-        bgAnim.setDuration(duration);
+        bgAnim.setDuration(duration * 2 / 3);
         bgAnim.start();
 
         // Animate a color filter to take the image from grayscale to full color.
         // This happens in parallel with the image scaling and moving into place.
-        //ObjectAnimator colorizer = ObjectAnimator.ofFloat(TransactionsActivity.this,
-        //        "saturation", 0, 1);
-        //colorizer.setDuration(duration);
-        //colorizer.start();
+        ObjectAnimator colorizer = ObjectAnimator.ofFloat(TransactionsActivity.this,
+                "saturation", 0, 1);
+        colorizer.setDuration(duration);
+        colorizer.start();
 
         // Animate a drop-shadow of the image
         //ObjectAnimator shadowAnim = ObjectAnimator.ofFloat(mShadowLayout, "shadowDepth", 0, 1);
