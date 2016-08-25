@@ -14,6 +14,7 @@ import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -40,7 +41,7 @@ public class TransactionsActivity extends Activity {
     private TextView accountBalance, accountDetails, accountType;
     private ImageView imageView;
     private RelativeLayout transactionAccount;
-    private LinearLayout transactionsLayout;
+    private Button paymentButton;
     private String custId, response, accountId, accountT, accountNo, sortCode;
     private double accountBal;
     private int oldAccountTop, oldAccountLeft, accountDeltaTop, accountDeltaLeft;
@@ -58,7 +59,8 @@ public class TransactionsActivity extends Activity {
         accountDetails = (TextView) findViewById(R.id.transactionAccountDetails);
         accountBalance = (TextView) findViewById(R.id.transactionAccountBalance);
         transactionAccount = (RelativeLayout) findViewById(R.id.transactionAccount);
-        transactionsLayout = (LinearLayout) findViewById(R.id.transactionsLayout);
+        paymentButton = (Button) findViewById(R.id.paymentButton);
+        LinearLayout transactionsLayout = (LinearLayout) findViewById(R.id.transactionsLayout);
 
         //Unpack the bundle
         Bundle extras = getIntent().getExtras();
@@ -99,9 +101,11 @@ public class TransactionsActivity extends Activity {
 
                     //update the TextViews and ImageView data
                     accountType.setText(accountT);
-                    accountDetails.setText(accountNo + "   |   "
-                            + AccountAdapter.formatSortCode(sortCode));
-                    accountBalance.setText("£" + AccountAdapter.formatBalance(accountBal));
+                    String details = accountNo + "   |   "
+                            + AccountAdapter.formatSortCode(sortCode);
+                    accountDetails.setText(details);
+                    String balance = "£" + AccountAdapter.formatBalance(accountBal);
+                    accountBalance.setText(balance);
                     //try refactoring to include the resource ID in the intent
                     AccountAdapter.pickAccountImage(accountT, imageView);
 
@@ -132,6 +136,7 @@ public class TransactionsActivity extends Activity {
 
         // We'll fade the text in later
         listView.setAlpha(0);
+        paymentButton.setAlpha(0);
 
         // Animate scale and translation to go from thumbnail to full size
         transactionAccount.animate().setDuration(duration).
@@ -146,6 +151,10 @@ public class TransactionsActivity extends Activity {
                         listView.animate().setDuration(duration/2).
                                 translationY(0).alpha(1).
                                 setInterpolator(sDecelerator);
+
+                        //want to fade in the Make Payment button
+                        paymentButton.animate().setDuration(duration/2).
+                                alpha(1).setInterpolator(sDecelerator);
                     }
                 });
 
@@ -154,12 +163,21 @@ public class TransactionsActivity extends Activity {
         bgAnim.setDuration(duration * 2 / 3);
         bgAnim.start();
 
+        /*
+        //want to fade in the Make Payment button
+        Animation fadeIn = new AlphaAnimation(0, 1);
+        fadeIn.setInterpolator(new AccelerateInterpolator()); //add this
+        fadeIn.setDuration(1000);
+        AnimationSet animation = new AnimationSet(false); //change to false
+        animation.addAnimation(fadeIn);
+        paymentButton.startAnimation(animation);*/
+
         // Animate a color filter to take the image from grayscale to full color.
         // This happens in parallel with the image scaling and moving into place.
-        ObjectAnimator colorizer = ObjectAnimator.ofFloat(TransactionsActivity.this,
-                "saturation", 0, 1);
-        colorizer.setDuration(duration);
-        colorizer.start();
+        //ObjectAnimator colorizer = ObjectAnimator.ofFloat(TransactionsActivity.this,
+        //        "saturation", 0, 1);
+        //colorizer.setDuration(duration);
+        //colorizer.start();
 
         // Animate a drop-shadow of the image
         //ObjectAnimator shadowAnim = ObjectAnimator.ofFloat(mShadowLayout, "shadowDepth", 0, 1);
@@ -187,33 +205,31 @@ public class TransactionsActivity extends Activity {
                 try {
                     response = ApiCall.GET(buildURL(accountId));
                     //Parse the response string here
-                    if (response != null) {
-                        try {
-                            JSONArray jsonArr = new JSONArray(response);
-                            transactions = new ArrayList<>();
+                    try {
+                        JSONArray jsonArr = new JSONArray(response);
+                        transactions = new ArrayList<>();
 
-                            // looping through All Contacts
-                            //should be i < jsonArr.length(), but only want 10 customers
-                            for (int i = 0; i < jsonArr.length(); i++) {
-                                JSONObject c = jsonArr.getJSONObject(i);
-                                Transactions tra = new Transactions();
+                        // looping through All Contacts
+                        //should be i < jsonArr.length(), but only want 10 customers
+                        for (int i = 0; i < jsonArr.length(); i++) {
+                            JSONObject c = jsonArr.getJSONObject(i);
+                            Transactions tra = new Transactions();
 
-                                tra.setId(c.getString(MainActivity.TAG_ID));
-                                tra.setTransactionDateTime(c.getString(
-                                        MainActivity.TAG_TRANSACTION_DATE));
-                                tra.setTransactionDescription(c.getString(
-                                        MainActivity.TAG_TRANSACTION_DESCRIPTION));
-                                tra.setTransactionAmount(c.getDouble(
-                                        MainActivity.TAG_TRANSACTION_AMOUNT));
+                            tra.setId(c.getString(MainActivity.TAG_ID));
+                            tra.setTransactionDateTime(c.getString(
+                                    MainActivity.TAG_TRANSACTION_DATE));
+                            tra.setTransactionDescription(c.getString(
+                                    MainActivity.TAG_TRANSACTION_DESCRIPTION));
+                            tra.setTransactionAmount(c.getDouble(
+                                    MainActivity.TAG_TRANSACTION_AMOUNT));
 
-                                transactions.add(tra);
-                                //Log.d("Response", "" + transactions.get(i));
-                            }
+                            transactions.add(tra);
+                            //Log.d("Response", "" + transactions.get(i));
                         }
-                        catch (JSONException e) {
-                            e.printStackTrace();
-                            Log.d(TAG, "ERROR: JSONException");
-                        }
+                    }
+                    catch (JSONException e) {
+                        e.printStackTrace();
+                        Log.d(TAG, "ERROR: JSONException");
                     }
                 }catch(IOException e){
                     e.printStackTrace();
@@ -234,7 +250,7 @@ public class TransactionsActivity extends Activity {
     }
 
     public static HttpUrl buildURL(String accId){
-        HttpUrl url = new HttpUrl.Builder()
+        return new HttpUrl.Builder()
                 .scheme("https")
                 .host("bluebank.azure-api.net")
                 .addPathSegment("api")
@@ -244,7 +260,6 @@ public class TransactionsActivity extends Activity {
                 .addPathSegment("transactions")
                 .addQueryParameter("sortOrder", "-transactionDateTime")
                 .build();
-        return url;
     }
 
     public void makePayment(View v){
