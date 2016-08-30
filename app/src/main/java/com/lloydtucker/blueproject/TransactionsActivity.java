@@ -35,6 +35,7 @@ public class TransactionsActivity extends Activity {
     private static final TimeInterpolator sAccelerator = new AccelerateInterpolator();
     private static final String TAG = TransactionsActivity.class.getSimpleName();
     private static final int ANIM_DURATION = 500;
+    static final long duration = (long) (ANIM_DURATION * MainActivity.sAnimatorScale);
 
     private ListView listView;
     private ArrayAdapter<Transactions> adapter;
@@ -124,8 +125,6 @@ public class TransactionsActivity extends Activity {
      * drops down.
      */
     public void runEnterAnimation() {
-        final long duration = (long) (ANIM_DURATION * MainActivity.sAnimatorScale);
-
         // Set starting values for properties we're going to animate. These
         // values scale and position the full size version down to the thumbnail
         // size/location, from which we'll animate it back up
@@ -160,17 +159,8 @@ public class TransactionsActivity extends Activity {
 
         // Fade in the black background
         ObjectAnimator bgAnim = ObjectAnimator.ofInt(transactionsBackground, "alpha", 0, 255);
-        bgAnim.setDuration(duration * 2 / 3);
+        bgAnim.setDuration(duration);
         bgAnim.start();
-
-        /*
-        //want to fade in the Make Payment button
-        Animation fadeIn = new AlphaAnimation(0, 1);
-        fadeIn.setInterpolator(new AccelerateInterpolator()); //add this
-        fadeIn.setDuration(1000);
-        AnimationSet animation = new AnimationSet(false); //change to false
-        animation.addAnimation(fadeIn);
-        paymentButton.startAnimation(animation);*/
 
         // Animate a color filter to take the image from grayscale to full color.
         // This happens in parallel with the image scaling and moving into place.
@@ -204,33 +194,6 @@ public class TransactionsActivity extends Activity {
             protected Void doInBackground(Void... params){
                 try {
                     response = ApiCall.GET(buildURL(accountId));
-                    //Parse the response string here
-                    try {
-                        JSONArray jsonArr = new JSONArray(response);
-                        transactions = new ArrayList<>();
-
-                        // looping through All Contacts
-                        //should be i < jsonArr.length(), but only want 10 customers
-                        for (int i = 0; i < jsonArr.length(); i++) {
-                            JSONObject c = jsonArr.getJSONObject(i);
-                            Transactions tra = new Transactions();
-
-                            tra.setId(c.getString(MainActivity.TAG_ID));
-                            tra.setTransactionDateTime(c.getString(
-                                    MainActivity.TAG_TRANSACTION_DATE));
-                            tra.setTransactionDescription(c.getString(
-                                    MainActivity.TAG_TRANSACTION_DESCRIPTION));
-                            tra.setTransactionAmount(c.getDouble(
-                                    MainActivity.TAG_TRANSACTION_AMOUNT));
-
-                            transactions.add(tra);
-                            //Log.d("Response", "" + transactions.get(i));
-                        }
-                    }
-                    catch (JSONException e) {
-                        e.printStackTrace();
-                        Log.d(TAG, "ERROR: JSONException");
-                    }
                 }catch(IOException e){
                     e.printStackTrace();
                 }
@@ -240,6 +203,35 @@ public class TransactionsActivity extends Activity {
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
+
+                //Parse the response string here
+                try {
+                    JSONArray jsonArr = new JSONArray(response);
+                    transactions = new ArrayList<>();
+
+                    // looping through All Contacts
+                    //should be i < jsonArr.length(), but only want 10 customers
+                    for (int i = 0; i < jsonArr.length(); i++) {
+                        JSONObject c = jsonArr.getJSONObject(i);
+                        Transactions tra = new Transactions();
+
+                        tra.setId(c.getString(MainActivity.TAG_ID));
+                        tra.setTransactionDateTime(c.getString(
+                                MainActivity.TAG_TRANSACTION_DATE));
+                        tra.setTransactionDescription(c.getString(
+                                MainActivity.TAG_TRANSACTION_DESCRIPTION));
+                        tra.setTransactionAmount(c.getDouble(
+                                MainActivity.TAG_TRANSACTION_AMOUNT));
+
+                        transactions.add(tra);
+                        //Log.d("Response", "" + transactions.get(i));
+                    }
+                }
+                catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.d(TAG, "ERROR: JSONException");
+                }
+
                 //convert ArrayList of Transactions to an Array
                 transArr = transactions.toArray(
                         new Transactions[transactions.size()]);
@@ -263,14 +255,26 @@ public class TransactionsActivity extends Activity {
     }
 
     public void makePayment(View v){
-        Log.d("Click", "You clicked Make Payment");
-        Intent intent = new Intent(this, PaymentActivity.class);
-        intent.putExtra(MainActivity.TAG_ID, accountId);
-        intent.putExtra(MainActivity.TAG_ACCOUNT_TYPE, accountT);
-        intent.putExtra(MainActivity.TAG_ACCOUNT_NUMBER, accountNo);
-        intent.putExtra(MainActivity.TAG_SORT_CODE, sortCode);
-        intent.putExtra(MainActivity.TAG_ACCOUNT_BALANCE, accountBal);
-        intent.putExtra(MainActivity.TAG_CUSTOMER_ID, custId);
-        startActivity(intent);
+        // First, slide/fade text out of the way
+        listView.animate().translationY(-listView.getHeight()).alpha(0).
+                setDuration(duration/2).setInterpolator(sAccelerator);
+
+        paymentButton.animate().setDuration(duration/2).
+                alpha(0).setInterpolator(sAccelerator).withEndAction(new Runnable() {
+            @Override
+            public void run() {
+                Intent intent = new Intent(TransactionsActivity.this, PaymentActivity.class);
+                intent.putExtra(MainActivity.TAG_ID, accountId);
+                intent.putExtra(MainActivity.TAG_ACCOUNT_TYPE, accountT);
+                intent.putExtra(MainActivity.TAG_ACCOUNT_NUMBER, accountNo);
+                intent.putExtra(MainActivity.TAG_SORT_CODE, sortCode);
+                intent.putExtra(MainActivity.TAG_ACCOUNT_BALANCE, accountBal);
+                intent.putExtra(MainActivity.TAG_CUSTOMER_ID, custId);
+                startActivity(intent);
+
+                //Don't want normal window animations to take place
+                overridePendingTransition(0, 0);
+            }
+        });
     }
 }

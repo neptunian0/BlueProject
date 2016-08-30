@@ -14,4 +14,9 @@
     <!-- we define corner radius, note that radius can be different for each corner -->
     <corners android:radius="10dp" />
 
+    <item
+        android:state_enabled="false"
+        android:color="#373737"
+        android:background="#C4C4C4"/>
+
 </shape>

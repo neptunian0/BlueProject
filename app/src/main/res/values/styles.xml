@@ -30,4 +30,9 @@
         <item name="android:windowBackground">@android:color/transparent</item>
     </style>
 
+    <style name="MyEditText" parent="Theme.AppCompat.Light">
+        <item name="colorControlNormal">#41F3D8</item>
+        <item name="colorControlActivated">#F341B8</item>
+    </style>
+
 </resources>

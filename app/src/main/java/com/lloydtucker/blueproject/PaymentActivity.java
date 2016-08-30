@@ -1,5 +1,7 @@
 package com.lloydtucker.blueproject;
 
+import android.animation.LayoutTransition;
+import android.animation.TimeInterpolator;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -10,10 +12,14 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,6 +33,10 @@ import okhttp3.HttpUrl;
 import okhttp3.Response;
 
 public class PaymentActivity extends AppCompatActivity {
+    private static final TimeInterpolator sDecelerator = new DecelerateInterpolator();
+    private static final TimeInterpolator sAccelerator = new AccelerateInterpolator();
+    private static final int ANIM_DURATION = 500;
+
     private final String TAG_PAYMENT_STATUS = "paymentStatus";
     private final String TAG_PAYMENT_ID = "id";
     private final String TAG_MOBILE_PHONE = "mobilePhone";
@@ -37,16 +47,16 @@ public class PaymentActivity extends AppCompatActivity {
     private final String TAG_PAYMENT_AMOUNT = "paymentAmount";
 
     private TextInputLayout paymentSortCodeLayout;
-    private TextView accountBalance, accountDetails, accountType;
+    private TextView accountBalance, accountDetails, accountType, paymentFrom;
     private EditText paymentSortCode, paymentAccountNumber, paymentReference,
             paymentAmount, OTPCodeField;
     private Button submitPayment, submitOTP;
-    private LinearLayout paymentOTPLayout, paymentLayout;
+    private LinearLayout paymentFormLayout, paymentLayout, paymentOTPLayout;
+    private RelativeLayout paymentRelativeOTP, paymentAccountHeader, paymentRelativeForm;
     private ImageView imageView;
     private String accountId, accountT, accountNo, sortCode, paymentId, OTPCode;
     private Response response;
     private double accountBal;
-    private boolean payment_complete;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,10 +67,15 @@ public class PaymentActivity extends AppCompatActivity {
         accountType = (TextView) findViewById(R.id.paymentAccountType);
         accountDetails = (TextView) findViewById(R.id.paymentAccountDetails);
         accountBalance = (TextView) findViewById(R.id.paymentAccountBalance);
+        paymentFrom = (TextView) findViewById(R.id.paymentFrom);
         paymentOTPLayout = (LinearLayout) findViewById(R.id.paymentOTPLayout);
+        paymentRelativeOTP = (RelativeLayout) findViewById(R.id.paymentRelativeOTP);
+        paymentRelativeForm = (RelativeLayout) findViewById(R.id.paymentRelativeForm);
+        paymentFormLayout = (LinearLayout) findViewById(R.id.paymentFormLayout);
         paymentLayout = (LinearLayout) findViewById(R.id.paymentLayout);
         submitPayment = (Button) findViewById(R.id.paymentMakePayment);
         submitOTP = (Button) findViewById(R.id.submitOTPCode);
+        paymentAccountHeader = (RelativeLayout) findViewById(R.id.paymentAccountHeader);
 
         /*
         * SORT CODE EDIT TEXT
@@ -220,12 +235,46 @@ public class PaymentActivity extends AppCompatActivity {
             accountId = extras.getString(MainActivity.TAG_ID);
             accountBal = extras.getDouble(MainActivity.TAG_ACCOUNT_BALANCE);
 
+            //update the TextViews and ImageView data
             accountType.setText(accountT);
             accountDetails.setText(accountNo + "   |   "
                     + AccountAdapter.formatSortCode(sortCode));
             accountBalance.setText("£" + AccountAdapter.formatBalance(accountBal));
+            //try refactoring using the image view id instead
             AccountAdapter.pickAccountImage(accountT, imageView);
         }
+
+        //Attempt at animating the header account information when "From" appears
+        if (savedInstanceState == null) {
+            ViewTreeObserver observer = paymentLayout.getViewTreeObserver();
+            observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                @Override
+                public boolean onPreDraw() {
+                    paymentLayout.getViewTreeObserver().removeOnPreDrawListener(this);
+
+                    LayoutTransition transition = paymentAccountHeader.getLayoutTransition();
+                    transition.enableTransitionType(LayoutTransition.CHANGING);
+                    paymentFrom.setVisibility(View.VISIBLE);
+
+                    runSlideForm(paymentFormLayout, submitPayment);
+
+                    return true;
+                }
+            });
+        }
+    }
+
+    public void runSlideForm(LinearLayout linearLayout, Button button){
+        linearLayout.setAlpha(0);
+        button.setAlpha(0);
+
+        linearLayout.setTranslationY(-linearLayout.getHeight());
+        linearLayout.animate().setDuration(TransactionsActivity.duration/2).
+                translationY(0).alpha(1).setInterpolator(sDecelerator);
+
+        //want to fade in the Make Payment button
+        button.animate().setDuration(TransactionsActivity.duration/2).
+                alpha(1).setInterpolator(sDecelerator);
     }
 
     public void submitPayment(View v){
@@ -275,9 +324,21 @@ public class PaymentActivity extends AppCompatActivity {
                 else if(paymentStatus.equals("2FA required")){
                     // remove the payment information fields and show the OTP field
                     // send the OTP code in a PATCH request
-                    paymentLayout.setVisibility(View.GONE);
-                    paymentOTPLayout.setVisibility(View.VISIBLE);
-                    //click the button
+                    paymentFormLayout.animate().translationY(-paymentFormLayout.getHeight()).alpha(0).
+                            setDuration(TransactionsActivity.duration/2).setInterpolator(sAccelerator).
+                            withEndAction(new Runnable() {
+                                public void run() {
+                                    paymentRelativeForm.setVisibility(View.GONE);
+                                    paymentOTPLayout.setAlpha(0); //redundant, but needed
+                                    paymentRelativeOTP.setVisibility(View.VISIBLE);
+
+                                    //fade in the OTP form
+                                    runSlideForm(paymentOTPLayout, submitOTP);
+                                }
+                            });
+                    //fade the submit button
+                    submitPayment.animate().setDuration(TransactionsActivity.duration/2).
+                            alpha(0).setInterpolator(sAccelerator);
                 }
             }
         }.execute();
