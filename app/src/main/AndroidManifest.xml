@@ -21,7 +21,6 @@
 
         <activity
             android:name=".TransactionsActivity"
-            android:label="@string/title_activity_transactions"
             android:theme="@style/Transparent" >
         </activity>
 

@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:id="@+id/paymentLayout"
     tools:context="com.lloydtucker.blueproject.PaymentActivity">
 
@@ -26,17 +25,16 @@
             android:layout_height="80dp"
             android:layout_centerVertical="true"
             android:layout_alignParentEnd="true"
-            android:src="@drawable/pound_coin"
-            android:tint="#e3ffffff" />
+            android:tint="@color/account_image_tint" />
 
         <TextView
             android:id="@+id/paymentFrom"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="From:"
+            android:text="@string/payment_from"
             android:layout_marginBottom="2dp"
             android:textSize="18dp"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/white"
             android:fontFamily="sans-serif-condensed"
             android:visibility="gone"/>
 
@@ -45,11 +43,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/paymentFrom"
-            android:text="Current account"
             android:layout_marginBottom="5dp"
             android:textStyle="bold"
             android:textSize="35dp"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/white"
             android:fontFamily="sans-serif-condensed" />
 
         <TextView
@@ -58,9 +55,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/paymentAccountType"
             android:layout_marginBottom="15dp"
-            android:text="12345678 | 12-34-56 | Tucker, Lloyd"
             android:textSize="30sp"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/white"
             android:fontFamily="sans-serif-condensed"/>
 
         <TextView
@@ -68,9 +64,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/paymentAccountDetails"
-            android:text="£1500.00"
             android:textSize="45sp"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/white"
             android:fontFamily="sans-serif-condensed" />
     </RelativeLayout>
 
@@ -78,7 +73,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="5dp"
-        android:id="@+id/paymentRelativeForm">
+        android:id="@+id/paymentRelativeForm"
+        android:layout_below="@+id/paymentAccountHeader">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -102,7 +98,7 @@
                     android:theme="@style/MyEditText"
                     android:inputType="number"
                     android:maxLength="6"
-                    android:hint="Sort Code"/>
+                    android:hint="@string/sort_code"/>
 
             </android.support.design.widget.TextInputLayout>
 
@@ -119,7 +115,7 @@
                     android:theme="@style/MyEditText"
                     android:inputType="number"
                     android:maxLength="8"
-                    android:hint="Account Number"/>
+                    android:hint="@string/account_number"/>
 
             </android.support.design.widget.TextInputLayout>
 
@@ -134,7 +130,7 @@
                     android:layout_height="wrap_content"
                     android:layout_width="match_parent"
                     android:theme="@style/MyEditText"
-                    android:hint="Reference"/>
+                    android:hint="@string/reference"/>
 
             </android.support.design.widget.TextInputLayout>
 
@@ -150,7 +146,7 @@
                     android:layout_width="match_parent"
                     android:theme="@style/MyEditText"
                     android:inputType="numberDecimal"
-                    android:hint="Amount"/>
+                    android:hint="@string/amount"/>
 
             </android.support.design.widget.TextInputLayout>
         </LinearLayout>
@@ -159,16 +155,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:text="Submit Payment"
+            android:text="@string/submit_payment"
             android:id="@+id/paymentMakePayment"
             android:enabled="false"
             android:background="@drawable/button_rounded_corner"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginBottom="5dp"
-            android:textColor="#FFFFFF"
-            android:textSize="25dp"
+            android:layout_marginLeft="@dimen/button_margin_horizontal"
+            android:layout_marginTop="@dimen/button_margin_vertical"
+            android:layout_marginRight="@dimen/button_margin_horizontal"
+            android:layout_marginBottom="@dimen/button_margin_vertical"
+            android:textColor="@color/white"
+            android:textSize="@dimen/button_font_size"
             android:fontFamily="sans-serif-condensed"
             android:textStyle="bold"
             android:onClick="submitPayment"/>
@@ -180,7 +176,8 @@
         android:orientation="vertical"
         android:id="@+id/paymentRelativeOTP"
         android:padding="20dp"
-        android:visibility="gone">
+        android:visibility="gone"
+        android:layout_below="@+id/paymentAccountHeader">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -199,7 +196,7 @@
                     android:layout_width="match_parent"
                     android:inputType="number"
                     android:ems="10"
-                    android:hint="OTP Code"/>
+                    android:hint="@string/otp_code"/>
 
             </android.support.design.widget.TextInputLayout>
         </LinearLayout>
@@ -207,13 +204,15 @@
         <Button
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Submit OTP"
+            android:text="@string/submit_otp"
             android:background="@drawable/button_rounded_corner"
             android:layout_alignParentBottom="true"
-            android:layout_marginTop="5dp"
-            android:layout_marginBottom="5dp"
-            android:textColor="#FFFFFF"
-            android:textSize="25dp"
+            android:layout_marginLeft="@dimen/button_margin_horizontal"
+            android:layout_marginTop="@dimen/button_margin_vertical"
+            android:layout_marginRight="@dimen/button_margin_horizontal"
+            android:layout_marginBottom="@dimen/button_margin_vertical"
+            android:textColor="@color/white"
+            android:textSize="@dimen/button_font_size"
             android:fontFamily="sans-serif-condensed"
             android:textStyle="bold"
             android:inputType="number"
@@ -222,4 +221,15 @@
 
     </RelativeLayout>
 
-</LinearLayout>
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:visibility="gone"
+        android:progressDrawable="@drawable/progress" >
+    </ProgressBar>
+
+</RelativeLayout>

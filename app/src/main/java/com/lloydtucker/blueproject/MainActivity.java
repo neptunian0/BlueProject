@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -33,6 +34,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     //public final static String EXTRA_MESSAGE = "com.lloydtucker.testproject.CONTACTS";
     private ListView listView;
     private TextView greetingView,greetingDateView;
+    private ProgressBar mainProgressBar;
     private ArrayAdapter<Accounts> adapter;
     String response;
 
@@ -94,77 +96,27 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         listView.setOnItemClickListener(this); //clickable account items
         greetingView  = (TextView) findViewById(R.id.greeting);
         greetingDateView = (TextView) findViewById(R.id.greetDate);
+        mainProgressBar = (ProgressBar) findViewById(R.id.mainProgressBar);
 
         //Make the API call
-        loadContent();
+        getCustomers();
     }
 
-    private void loadContent(){
+    private void getCustomers() {
         new AsyncTask<Void, Void, Void>() {
             @Override
-            protected Void doInBackground(Void... params){
+            protected void onPreExecute() {
+                super.onPreExecute();
+                mainProgressBar.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            protected Void doInBackground(Void... params) {
                 try {
                     response = ApiCall.GET(buildURL());
-                    //Parse the response string here
-                    try {
-                        JSONArray jsonArr = new JSONArray(response);
-
-                        // looping through All Contacts
-                        //should be i < jsonArr.length(), but only want 10 customers
-                        for (int i = 0; i < jsonArr.length() && i < 10; i++) {
-                            JSONObject c = jsonArr.getJSONObject(i);
-                            Customers cus = new Customers();
-
-                            cus.setId(c.getString(TAG_ID));
-                            cus.setGivenName(c.getString(TAG_GIVEN_NAME));
-                            cus.setFamilyName(c.getString(TAG_FAMILY_NAME));
-                            cus.setTown(c.getString(TAG_TOWN));
-                            cus.setPostCode(c.getString(TAG_POST_CODE));
-
-                            customers[i] = cus;
-                        }
-                        response = null;
-
-                        /*
-                        * Get Accounts
-                        */
-                        if(customers[0] != null){
-                            response = ApiCall.GET(buildURL(customers[0].getId()));
-                            try {
-                                jsonArr = new JSONArray(response);
-
-                                // looping through All Accounts for this Customer
-                                //should be i < jsonArr.length(), but only want 10 customers
-                                for (int i = 0; i < jsonArr.length() && i < 10; i++) {
-                                    JSONObject c = jsonArr.getJSONObject(i);
-                                    Accounts acc = new Accounts();
-
-                                    acc.setId(c.getString(TAG_ID));
-                                    acc.setCustId(c.getString(TAG_CUSTOMER_ID));
-                                    acc.setSortCode(c.getString(TAG_SORT_CODE));
-                                    acc.setAccountNumber(c.getString(TAG_ACCOUNT_NUMBER));
-                                    acc.setAccountType(c.getString(TAG_ACCOUNT_TYPE));
-                                    acc.setAccountFriendlyName(c.getString(TAG_ACCOUNT_FRIENDLY_NAME));
-                                    acc.setAccountBalance(c.getDouble(TAG_ACCOUNT_BALANCE));
-                                    acc.setAccountCurrency(c.getString(TAG_ACCOUNT_CURRENCY));
-
-                                    accounts[i] = acc;
-                                }
-                                response = null;
-                            }
-                            catch (JSONException e) {
-                                e.printStackTrace();
-                                Log.d(TAG, "ERROR: JSONException");
-                            }
-                        }
-                        contacts_retrieved = true;
-                    }
-                    catch (JSONException e) {
-                        e.printStackTrace();
-                        Log.d(TAG, "ERROR: JSONException");
-                    }
-                }catch(IOException e){
+                } catch (IOException e) {
                     e.printStackTrace();
+                    Log.d(TAG, "ERROR: IOException");
                 }
                 return null;
             }
@@ -172,13 +124,88 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
+                //Parse the response string here
+                try {
+                    JSONArray jsonArr = new JSONArray(response);
 
-                getGreeting(greetingView, greetingDateView);
-                adapter = new AccountAdapter(MainActivity.this, accounts);
-                listView.setAdapter(adapter);
+                    // looping through All Contacts
+                    //should be i < jsonArr.length(), but only want 10 customers
+                    for (int i = 0; i < jsonArr.length() && i < 10; i++) {
+                        JSONObject c = jsonArr.getJSONObject(i);
+                        Customers cus = new Customers();
+
+                        cus.setId(c.getString(TAG_ID));
+                        cus.setGivenName(c.getString(TAG_GIVEN_NAME));
+                        cus.setFamilyName(c.getString(TAG_FAMILY_NAME));
+                        cus.setTown(c.getString(TAG_TOWN));
+                        cus.setPostCode(c.getString(TAG_POST_CODE));
+
+                        customers[i] = cus;
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.d(TAG, "ERROR: JSONException");
+                }
+                if(customers[0] != null) {
+                    getGreeting(greetingView, greetingDateView);
+                    getAccounts();
+                }
             }
         }.execute();
     }
+
+    /*
+    * Get Accounts
+    */
+    public void getAccounts(){
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                try {
+                    response = ApiCall.GET(buildURL(customers[0].getId()));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.d(TAG, "ERROR: IOException");
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                try {
+                    JSONArray jsonArr = new JSONArray(response);
+
+                    // looping through All Accounts for this Customer
+                    //should be i < jsonArr.length(), but only want 10 customers
+                    for (int i = 0; i < jsonArr.length() && i < 10; i++) {
+                        JSONObject c = jsonArr.getJSONObject(i);
+                        Accounts acc = new Accounts();
+
+                        acc.setId(c.getString(TAG_ID));
+                        acc.setCustId(c.getString(TAG_CUSTOMER_ID));
+                        acc.setSortCode(c.getString(TAG_SORT_CODE));
+                        acc.setAccountNumber(c.getString(TAG_ACCOUNT_NUMBER));
+                        acc.setAccountType(c.getString(TAG_ACCOUNT_TYPE));
+                        acc.setAccountFriendlyName(c.getString(TAG_ACCOUNT_FRIENDLY_NAME));
+                        acc.setAccountBalance(c.getDouble(TAG_ACCOUNT_BALANCE));
+                        acc.setAccountCurrency(c.getString(TAG_ACCOUNT_CURRENCY));
+
+                        accounts[i] = acc;
+                    }
+
+                    //render the loaded information
+                    mainProgressBar.setVisibility(View.GONE);
+                    adapter = new AccountAdapter(MainActivity.this, accounts);
+                    listView.setAdapter(adapter);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.d(TAG, "ERROR: JSONException");
+                }
+            }
+        }.execute();
+    }
+
 
     public static HttpUrl buildURL(){
         return new HttpUrl.Builder()

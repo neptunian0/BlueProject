@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,7 +36,6 @@ import okhttp3.Response;
 public class PaymentActivity extends AppCompatActivity {
     private static final TimeInterpolator sDecelerator = new DecelerateInterpolator();
     private static final TimeInterpolator sAccelerator = new AccelerateInterpolator();
-    private static final int ANIM_DURATION = 500;
 
     private final String TAG_PAYMENT_STATUS = "paymentStatus";
     private final String TAG_PAYMENT_ID = "id";
@@ -51,8 +51,10 @@ public class PaymentActivity extends AppCompatActivity {
     private EditText paymentSortCode, paymentAccountNumber, paymentReference,
             paymentAmount, OTPCodeField;
     private Button submitPayment, submitOTP;
-    private LinearLayout paymentFormLayout, paymentLayout, paymentOTPLayout;
-    private RelativeLayout paymentRelativeOTP, paymentAccountHeader, paymentRelativeForm;
+    private ProgressBar progressBar;
+    private LinearLayout paymentFormLayout, paymentOTPLayout;
+    private RelativeLayout paymentRelativeOTP, paymentAccountHeader, paymentRelativeForm,
+            paymentLayout;
     private ImageView imageView;
     private String accountId, accountT, accountNo, sortCode, paymentId, OTPCode;
     private Response response;
@@ -72,10 +74,11 @@ public class PaymentActivity extends AppCompatActivity {
         paymentRelativeOTP = (RelativeLayout) findViewById(R.id.paymentRelativeOTP);
         paymentRelativeForm = (RelativeLayout) findViewById(R.id.paymentRelativeForm);
         paymentFormLayout = (LinearLayout) findViewById(R.id.paymentFormLayout);
-        paymentLayout = (LinearLayout) findViewById(R.id.paymentLayout);
+        paymentLayout = (RelativeLayout) findViewById(R.id.paymentLayout);
         submitPayment = (Button) findViewById(R.id.paymentMakePayment);
         submitOTP = (Button) findViewById(R.id.submitOTPCode);
         paymentAccountHeader = (RelativeLayout) findViewById(R.id.paymentAccountHeader);
+        progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         /*
         * SORT CODE EDIT TEXT
@@ -287,6 +290,12 @@ public class PaymentActivity extends AppCompatActivity {
         //parse the data collected into JSON
         new AsyncTask<Void, Void, Void>() {
             @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                removeFormButton(paymentFormLayout, submitPayment);
+            }
+
+            @Override
             protected Void doInBackground(Void... params){
                 try {
                     response = ApiCall.POST(
@@ -299,6 +308,7 @@ public class PaymentActivity extends AppCompatActivity {
 
             protected void onPostExecute(Void result){
                 super.onPostExecute(result);
+                progressBar.setVisibility(View.GONE);
 
                 String paymentStatus = "",
                         toAccNo = "",
@@ -324,24 +334,39 @@ public class PaymentActivity extends AppCompatActivity {
                 else if(paymentStatus.equals("2FA required")){
                     // remove the payment information fields and show the OTP field
                     // send the OTP code in a PATCH request
-                    paymentFormLayout.animate().translationY(-paymentFormLayout.getHeight()).alpha(0).
-                            setDuration(TransactionsActivity.duration/2).setInterpolator(sAccelerator).
-                            withEndAction(new Runnable() {
-                                public void run() {
-                                    paymentRelativeForm.setVisibility(View.GONE);
-                                    paymentOTPLayout.setAlpha(0); //redundant, but needed
-                                    paymentRelativeOTP.setVisibility(View.VISIBLE);
+                    paymentRelativeForm.setVisibility(View.GONE);
+                    paymentOTPLayout.setAlpha(0); //redundant, but needed
+                    paymentRelativeOTP.setVisibility(View.VISIBLE);
 
-                                    //fade in the OTP form
-                                    runSlideForm(paymentOTPLayout, submitOTP);
-                                }
-                            });
-                    //fade the submit button
-                    submitPayment.animate().setDuration(TransactionsActivity.duration/2).
-                            alpha(0).setInterpolator(sAccelerator);
+                    //fade in the OTP form
+                    ViewTreeObserver observer = paymentLayout.getViewTreeObserver();
+                    observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                        @Override
+                        public boolean onPreDraw() {
+                            paymentLayout.getViewTreeObserver().
+                                    removeOnPreDrawListener(this);
+                            runSlideForm(paymentOTPLayout, submitOTP);
+                            return true;
+                        }
+                    });
                 }
             }
         }.execute();
+    }
+
+    public void removeFormButton(LinearLayout layout, Button button){
+        layout.animate().translationY(-layout.getHeight()).
+                alpha(0).setDuration(TransactionsActivity.duration/2).
+                setInterpolator(sAccelerator).withEndAction(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setVisibility(View.VISIBLE);
+            }
+        });
+
+        //fade the submit button
+        button.animate().setDuration(TransactionsActivity.duration/2).
+                alpha(0).setInterpolator(sAccelerator);
     }
 
     public void submitOTPCode(View v) {
@@ -349,6 +374,7 @@ public class PaymentActivity extends AppCompatActivity {
             protected void onPreExecute(){
                 OTPCode = OTPCodeField.getText().toString();
                 Log.d("Response", OTPCode);
+                removeFormButton(paymentOTPLayout, submitOTP);
             }
 
             @Override
@@ -366,6 +392,7 @@ public class PaymentActivity extends AppCompatActivity {
 
             protected void onPostExecute(Void result) {
                 super.onPostExecute(result);
+                progressBar.setVisibility(View.GONE);
                 JSONObject json = null;
 
                 try{
@@ -406,13 +433,11 @@ public class PaymentActivity extends AppCompatActivity {
 
     //checks all the EditText fields
     public boolean enableSubmit(EditText... editTexts){
-        for(EditText values:editTexts){ //something's wrong in this method
+        for(EditText values:editTexts){
             if(values.getError() != null){
-                //Log.d("Response", "Error is null");
                 return false;
             }
             if(values.getText().toString().length() == 0){
-                //Log.d("Response", "EditText is null");
                 return false;
             }
         }

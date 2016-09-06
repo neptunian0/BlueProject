@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="centerCrop"
-            android:src="@drawable/bluenose_1000p"
+            android:src="@drawable/bluenose"
             android:background="#124984" />
 
         <TextView
@@ -45,6 +45,17 @@
             android:paddingBottom="20dp"
             android:textColor="@android:color/white" />
     </RelativeLayout>
+
+    <ProgressBar
+        android:id="@+id/mainProgressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:visibility="gone"
+        android:progressDrawable="@drawable/progress" >
+    </ProgressBar>
 
     <LinearLayout
         android:orientation="vertical"

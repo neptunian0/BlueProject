@@ -16,7 +16,6 @@ import android.view.animation.DecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -61,7 +60,7 @@ public class TransactionsActivity extends Activity {
         accountBalance = (TextView) findViewById(R.id.transactionAccountBalance);
         transactionAccount = (RelativeLayout) findViewById(R.id.transactionAccount);
         paymentButton = (Button) findViewById(R.id.paymentButton);
-        LinearLayout transactionsLayout = (LinearLayout) findViewById(R.id.transactionsLayout);
+        RelativeLayout transactionsLayout = (RelativeLayout) findViewById(R.id.transactionsLayout);
 
         //Unpack the bundle
         Bundle extras = getIntent().getExtras();

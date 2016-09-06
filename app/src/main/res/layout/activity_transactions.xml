@@ -1,18 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/transparent"
     android:id="@+id/transactionsLayout">
 
+    <ListView
+        android:id="@+id/transactionList"
+        android:layout_below="@+id/transactionAccount"
+        android:layout_above="@+id/paymentButton"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
     <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/transactionAccount"
+        android:id="@id/transactionAccount"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
         android:layout_marginTop="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginBottom="5dp"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
         android:background="@drawable/account_rounded_corner"
         android:padding="15dp">
 
@@ -22,18 +31,16 @@
             android:layout_height="80dp"
             android:layout_centerVertical="true"
             android:layout_alignParentEnd="true"
-            android:src="@drawable/pound_coin"
-            android:tint="#e3ffffff" />
+            android:tint="@color/account_image_tint" />
 
         <TextView
             android:id="@+id/transactionAccountType"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Current account"
             android:layout_marginBottom="5dp"
             android:textStyle="bold"
             android:textSize="35dp"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/white"
             android:fontFamily="sans-serif-condensed"/>
 
         <TextView
@@ -42,7 +49,6 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/transactionAccountType"
             android:layout_marginBottom="15dp"
-            android:text="12345678 | 12-34-56 | Tucker, Lloyd"
             android:textSize="30sp"
             android:textColor="#FFFFFF"
             android:fontFamily="sans-serif-condensed"/>
@@ -52,46 +58,25 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/transactionAccountDetails"
-            android:text="£1500.00"
             android:textSize="45sp"
             android:textColor="#FFFFFF"
             android:fontFamily="sans-serif-condensed"/>
     </RelativeLayout>
 
-    <RelativeLayout
-        android:id="@+id/transactionListLayout"
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp">
-
-        <ListView
-            android:id="@+id/transactionList"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-    </RelativeLayout>
-
-    <LinearLayout
-        android:orientation="horizontal"
+    <Button
+        android:id="@id/paymentButton"
+        android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Make Payment"
-            android:id="@+id/paymentButton"
-            android:background="@drawable/button_rounded_corner"
-            android:onClick="makePayment"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginBottom="5dp"
-            android:textColor="#FFFFFF"
-            android:fontFamily="sans-serif-condensed"
-            android:textStyle="bold"
-            android:textSize="25dp"/>
-    </LinearLayout>
-</LinearLayout>
+        android:layout_height="wrap_content"
+        android:text="@string/make_payment"
+        android:onClick="makePayment"
+        android:background="@drawable/button_rounded_corner"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:textColor="@color/white"
+        android:fontFamily="sans-serif-condensed"
+        android:textStyle="bold"
+        android:textSize="@dimen/button_font_size"/>
+</RelativeLayout>

@@ -3,4 +3,11 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="color_preloader_start">#000000</color>
+    <color name="color_preloader_center">#000000</color>
+    <color name="color_preloader_end">#FF56A9C7</color>
+
+    <color name="header_blue">#007EC1</color>
+    <color name="account_image_tint">#e3ffffff</color>
+    <color name="white">#FFFFFF</color>
 </resources>
