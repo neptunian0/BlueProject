@@ -6,75 +6,15 @@
     android:id="@+id/paymentLayout"
     tools:context="com.lloydtucker.blueproject.PaymentActivity">
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/paymentAccountHeader"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:background="@drawable/account_rounded_corner"
-        android:padding="15dp"
-        android:animateLayoutChanges="true">
-
-        <ImageView
-            android:id="@+id/paymentImage"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:layout_centerVertical="true"
-            android:layout_alignParentEnd="true"
-            android:tint="@color/account_image_tint" />
-
-        <TextView
-            android:id="@+id/paymentFrom"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/payment_from"
-            android:layout_marginBottom="2dp"
-            android:textSize="18dp"
-            android:textColor="@color/white"
-            android:fontFamily="sans-serif-condensed"
-            android:visibility="gone"/>
-
-        <TextView
-            android:id="@+id/paymentAccountType"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/paymentFrom"
-            android:layout_marginBottom="5dp"
-            android:textStyle="bold"
-            android:textSize="35dp"
-            android:textColor="@color/white"
-            android:fontFamily="sans-serif-condensed" />
-
-        <TextView
-            android:id="@+id/paymentAccountDetails"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/paymentAccountType"
-            android:layout_marginBottom="15dp"
-            android:textSize="30sp"
-            android:textColor="@color/white"
-            android:fontFamily="sans-serif-condensed"/>
-
-        <TextView
-            android:id="@+id/paymentAccountBalance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/paymentAccountDetails"
-            android:textSize="45sp"
-            android:textColor="@color/white"
-            android:fontFamily="sans-serif-condensed" />
-    </RelativeLayout>
+    <include layout="@layout/item_account"
+        android:id="@+id/paymentAccountHeader"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:paddingBottom="5dp"
         android:id="@+id/paymentRelativeForm"
-        android:layout_below="@+id/paymentAccountHeader">
+        android:layout_below="@id/paymentAccountHeader">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -86,77 +26,93 @@
             android:paddingBottom="5dp"
             android:id="@+id/paymentFormLayout">
 
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/paymentSortCodeLayout"
+            <!-- SORT CODE -->
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_width="match_parent">
+                android:text="@string/sort_code"
+                android:fontFamily="sans-serif-condensed"
+                android:textSize="@dimen/small_font_size"/>
 
-                <EditText
-                    android:id='@+id/paymentSortCode'
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    android:theme="@style/MyEditText"
-                    android:inputType="number"
-                    android:maxLength="6"
-                    android:hint="@string/sort_code"/>
-
-            </android.support.design.widget.TextInputLayout>
-
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/paymentAccountNumberLayout"
-                android:layout_height="wrap_content"
+            <EditText
+                android:id='@+id/paymentSortCode'
+                android:layout_marginTop="@dimen/sm_margin_vertical"
                 android:layout_width="match_parent"
-                android:layout_marginTop="20dp">
-
-                <EditText
-                    android:id='@+id/paymentAccountNumber'
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    android:theme="@style/MyEditText"
-                    android:inputType="number"
-                    android:maxLength="8"
-                    android:hint="@string/account_number"/>
-
-            </android.support.design.widget.TextInputLayout>
-
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/paymentReferenceLayout"
                 android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:layout_marginTop="20dp">
+                android:background="@drawable/edittext_rounded_corners"
+                android:padding="@dimen/padding"
+                android:textCursorDrawable="@drawable/blue_cursor"
+                android:hint="@string/hint_sort_code"
+                android:inputType="number"
+                android:maxLength="6"/>
 
-                <EditText
-                    android:id='@+id/paymentReference'
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    android:theme="@style/MyEditText"
-                    android:hint="@string/reference"/>
-
-            </android.support.design.widget.TextInputLayout>
-
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/paymentAmountLayout"
+            <!-- ACCOUNT NUMBER -->
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="@string/account_number"
+                android:fontFamily="sans-serif-condensed"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:textSize="@dimen/small_font_size"/>
+
+            <EditText
+                android:id="@+id/paymentAccountNumber"
                 android:layout_width="match_parent"
-                android:layout_marginTop="20dp">
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_rounded_corners"
+                android:padding="@dimen/padding"
+                android:textCursorDrawable="@drawable/blue_cursor"
+                android:hint="@string/hint_account_number"
+                android:inputType="number"
+                android:maxLength="8"
+                android:layout_marginTop="@dimen/sm_margin_vertical"/>
 
-                <EditText
-                    android:id='@+id/paymentAmount'
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    android:theme="@style/MyEditText"
-                    android:inputType="numberDecimal"
-                    android:hint="@string/amount"/>
+            <!-- REFERENCE -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/reference"
+                android:fontFamily="sans-serif-condensed"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:textSize="@dimen/small_font_size"/>
 
-            </android.support.design.widget.TextInputLayout>
+            <EditText
+                android:id="@+id/paymentReference"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_rounded_corners"
+                android:padding="@dimen/padding"
+                android:textCursorDrawable="@drawable/blue_cursor"
+                android:hint="@string/hint_reference"
+                android:layout_marginTop="@dimen/sm_margin_vertical"/>
+
+            <!-- AMOUNT -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/amount"
+                android:fontFamily="sans-serif-condensed"
+                android:layout_marginTop="@dimen/margin_vertical"
+                android:textSize="@dimen/small_font_size"/>
+
+            <EditText
+                android:id="@+id/paymentAmount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_rounded_corners"
+                android:padding="@dimen/padding"
+                android:textCursorDrawable="@drawable/blue_cursor"
+                android:hint="@string/hint_amount"
+                android:layout_marginTop="@dimen/sm_margin_vertical"
+                android:inputType="numberDecimal"/>
         </LinearLayout>
 
         <Button
+            android:id="@+id/paymentMakePayment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:text="@string/submit_payment"
-            android:id="@+id/paymentMakePayment"
             android:enabled="false"
             android:background="@drawable/button_rounded_corner"
             android:layout_marginLeft="@dimen/button_margin_horizontal"
@@ -175,7 +131,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:id="@+id/paymentRelativeOTP"
-        android:padding="20dp"
+        android:padding="@dimen/padding"
         android:visibility="gone"
         android:layout_below="@+id/paymentAccountHeader">
 
@@ -185,23 +141,27 @@
             android:orientation="vertical"
             android:id="@+id/paymentOTPLayout">
 
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/paymentOTPCodeLayout"
+            <!-- OTP CODE -->
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_width="match_parent">
+                android:text="@string/otp_code"
+                android:fontFamily="sans-serif-condensed"
+                android:textSize="@dimen/small_font_size"/>
 
-                <EditText
-                    android:id='@+id/paymentOTPCode'
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    android:inputType="number"
-                    android:ems="10"
-                    android:hint="@string/otp_code"/>
-
-            </android.support.design.widget.TextInputLayout>
+            <EditText
+                android:id="@+id/paymentOTPCode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_rounded_corners"
+                android:padding="@dimen/padding"
+                android:textCursorDrawable="@drawable/blue_cursor"
+                android:layout_marginTop="@dimen/sm_margin_vertical"
+                android:inputType="number"/>
         </LinearLayout>
 
         <Button
+            android:id="@+id/submitOTPCode"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/submit_otp"
@@ -215,8 +175,6 @@
             android:textSize="@dimen/button_font_size"
             android:fontFamily="sans-serif-condensed"
             android:textStyle="bold"
-            android:inputType="number"
-            android:id="@+id/submitOTPCode"
             android:onClick="submitOTPCode"/>
 
     </RelativeLayout>

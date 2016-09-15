@@ -1,7 +1,6 @@
 package com.lloydtucker.blueproject;
 
 import android.animation.ObjectAnimator;
-import android.animation.TimeInterpolator;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
@@ -11,8 +10,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -30,13 +27,13 @@ import java.util.ArrayList;
 import okhttp3.HttpUrl;
 
 public class TransactionsActivity extends Activity {
-    private static final TimeInterpolator sDecelerator = new DecelerateInterpolator();
-    private static final TimeInterpolator sAccelerator = new AccelerateInterpolator();
     private static final String TAG = TransactionsActivity.class.getSimpleName();
-    private static final int ANIM_DURATION = 500;
-    static final long duration = (long) (ANIM_DURATION * MainActivity.sAnimatorScale);
+    static final String TRANSACTIONS = "transactions";
+    static final String SORT_ORDER = "sortOrder";
+    static final String TRANSACTION_DATE_TIME_DESC = "-transactionDateTime";
+    static boolean fromActivity = false;
 
-    private ListView listView;
+    private ListView transactionsList;
     private ArrayAdapter<Transactions> adapter;
     private TextView accountBalance, accountDetails, accountType;
     private ImageView imageView;
@@ -53,14 +50,17 @@ public class TransactionsActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_transactions);
 
-        listView = (ListView) findViewById(R.id.transactionList);
-        imageView = (ImageView) findViewById(R.id.transactionImage);
-        accountType = (TextView) findViewById(R.id.transactionAccountType);
-        accountDetails = (TextView) findViewById(R.id.transactionAccountDetails);
-        accountBalance = (TextView) findViewById(R.id.transactionAccountBalance);
         transactionAccount = (RelativeLayout) findViewById(R.id.transactionAccount);
+        imageView = (ImageView) transactionAccount.findViewById(R.id.account_image);
+        accountType = (TextView) transactionAccount.findViewById(R.id.account_type);
+        accountDetails = (TextView) transactionAccount.findViewById(R.id.account_details);
+        accountBalance = (TextView) transactionAccount.findViewById(R.id.account_balance);
+
+        //Other three items in the activity
+        transactionsList = (ListView) findViewById(R.id.transactionList);
         paymentButton = (Button) findViewById(R.id.paymentButton);
-        RelativeLayout transactionsLayout = (RelativeLayout) findViewById(R.id.transactionsLayout);
+        RelativeLayout transactionsLayout = (RelativeLayout)
+                findViewById(R.id.transactionsLayout);
 
         //Unpack the bundle
         Bundle extras = getIntent().getExtras();
@@ -108,6 +108,7 @@ public class TransactionsActivity extends Activity {
                     accountBalance.setText(balance);
                     //try refactoring to include the resource ID in the intent
                     AccountAdapter.pickAccountImage(accountT, imageView);
+                    MainActivity.selectedAccount.setVisibility(View.INVISIBLE);
 
                     runEnterAnimation();
 
@@ -133,32 +134,32 @@ public class TransactionsActivity extends Activity {
         transactionAccount.setTranslationY(accountDeltaTop);
 
         // We'll fade the text in later
-        listView.setAlpha(0);
+        transactionsList.setAlpha(0);
         paymentButton.setAlpha(0);
 
         // Animate scale and translation to go from thumbnail to full size
-        transactionAccount.animate().setDuration(duration).
+        transactionAccount.animate().setDuration(MainActivity.duration).
                 translationX(0).translationY(0).
-                setInterpolator(sDecelerator).
+                setInterpolator(MainActivity.sDecelerator).
                 withEndAction(new Runnable() {
                     public void run() {
                         // Animate the description in after the image animation
                         // is done. Slide and fade the text in from underneath
                         // the picture.
-                        listView.setTranslationY(-listView.getHeight());
-                        listView.animate().setDuration(duration/2).
+                        transactionsList.setTranslationY(-transactionsList.getHeight());
+                        transactionsList.animate().setDuration(MainActivity.duration/2).
                                 translationY(0).alpha(1).
-                                setInterpolator(sDecelerator);
+                                setInterpolator(MainActivity.sDecelerator);
 
                         //want to fade in the Make Payment button
-                        paymentButton.animate().setDuration(duration/2).
-                                alpha(1).setInterpolator(sDecelerator);
+                        paymentButton.animate().setDuration(MainActivity.duration/2).
+                                alpha(1).setInterpolator(MainActivity.sDecelerator);
                     }
                 });
 
-        // Fade in the black background
+        // Fade in the white background
         ObjectAnimator bgAnim = ObjectAnimator.ofInt(transactionsBackground, "alpha", 0, 255);
-        bgAnim.setDuration(duration);
+        bgAnim.setDuration(MainActivity.duration);
         bgAnim.start();
 
         // Animate a color filter to take the image from grayscale to full color.
@@ -174,12 +175,69 @@ public class TransactionsActivity extends Activity {
         //shadowAnim.start();
     }
 
+    public void runExitAnimation(final Runnable endAction){
+        transactionsList.animate().translationY(-transactionsList.getHeight()).
+                alpha(0).setDuration(MainActivity.duration/2).
+                setInterpolator(MainActivity.sAccelerator).withEndAction(new Runnable(){
+            @Override
+            public void run() {
+                transactionAccount.animate().setDuration(MainActivity.duration).
+                        translationX(accountDeltaLeft).translationY(accountDeltaTop).
+                        setInterpolator(MainActivity.sAccelerator).withEndAction(endAction);
+
+                ObjectAnimator bgAnim = ObjectAnimator.ofInt(transactionsBackground, "alpha", 255, 0);
+                bgAnim.setDuration(MainActivity.duration*2);
+                bgAnim.start();
+            }
+        });
+
+        //fade the submit button
+        paymentButton.animate().setDuration(MainActivity.duration/2).
+                alpha(0).setInterpolator(MainActivity.sAccelerator);
+    }
+
+    public void runSlideForm(){
+        transactionsList.setAlpha(0);
+        paymentButton.setAlpha(0);
+
+        transactionsList.setTranslationY(-transactionsList.getHeight());
+        transactionsList.animate().setDuration(MainActivity.duration/2).
+                translationY(0).alpha(1).setInterpolator(MainActivity.sDecelerator);
+
+        //want to fade in the Make Payment button
+        paymentButton.animate().setDuration(MainActivity.duration/2).
+                alpha(1).setInterpolator(MainActivity.sDecelerator);
+    }
+
     @Override
     public void onBackPressed(){
         //you could possibly cache the information in a
         //SESSION to reduce the network requirements
         //rather than throwing the data away like this
-        finish();
+        runExitAnimation(new Runnable() {
+            public void run() {
+                // *Now* go ahead and exit the activity
+                MainActivity.selectedAccount.setVisibility(View.VISIBLE);
+                finish();
+            }
+        });
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+
+        // override transitions to skip the standard window animations
+        overridePendingTransition(0, 0);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(fromActivity) {
+            runSlideForm();
+            fromActivity = false;
+        }
     }
 
     public void loadContent(){
@@ -223,7 +281,6 @@ public class TransactionsActivity extends Activity {
                                 MainActivity.TAG_TRANSACTION_AMOUNT));
 
                         transactions.add(tra);
-                        //Log.d("Response", "" + transactions.get(i));
                     }
                 }
                 catch (JSONException e) {
@@ -235,31 +292,31 @@ public class TransactionsActivity extends Activity {
                 transArr = transactions.toArray(
                         new Transactions[transactions.size()]);
                 adapter = new TransactionsAdapter(TransactionsActivity.this, transArr);
-                listView.setAdapter(adapter);
+                transactionsList.setAdapter(adapter);
             }
         }.execute();
     }
 
     public static HttpUrl buildURL(String accId){
         return new HttpUrl.Builder()
-                .scheme("https")
-                .host("bluebank.azure-api.net")
-                .addPathSegment("api")
-                .addPathSegment("v0.6.3")
-                .addPathSegment("accounts")
+                .scheme(MainActivity.HTTPS)
+                .host(MainActivity.BLUE_URI)
+                .addPathSegment(MainActivity.BLUE_API)
+                .addPathSegment(MainActivity.BLUE_VERSION)
+                .addPathSegment(MainActivity.ACCOUNTS)
                 .addPathSegment(accId)
-                .addPathSegment("transactions")
-                .addQueryParameter("sortOrder", "-transactionDateTime")
+                .addPathSegment(TRANSACTIONS)
+                .addQueryParameter(SORT_ORDER, TRANSACTION_DATE_TIME_DESC)
                 .build();
     }
 
     public void makePayment(View v){
         // First, slide/fade text out of the way
-        listView.animate().translationY(-listView.getHeight()).alpha(0).
-                setDuration(duration/2).setInterpolator(sAccelerator);
+        transactionsList.animate().translationY(-transactionsList.getHeight()).alpha(0).
+                setDuration(MainActivity.duration/2).setInterpolator(MainActivity.sAccelerator);
 
-        paymentButton.animate().setDuration(duration/2).
-                alpha(0).setInterpolator(sAccelerator).withEndAction(new Runnable() {
+        paymentButton.animate().setDuration(MainActivity.duration/2).
+                alpha(0).setInterpolator(MainActivity.sAccelerator).withEndAction(new Runnable() {
             @Override
             public void run() {
                 Intent intent = new Intent(TransactionsActivity.this, PaymentActivity.class);

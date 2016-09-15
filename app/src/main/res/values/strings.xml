@@ -5,8 +5,28 @@
     <string name="submit_payment">Submit Payment</string>
     <string name="submit_otp">Submit OTP</string>
     <string name="sort_code">Sort Code</string>
+    <string name="hint_sort_code">00-00-00</string>
     <string name="account_number">Account Number</string>
+    <string name="hint_account_number">00000000</string>
     <string name="reference">Reference</string>
+    <string name="hint_reference">Electricity, Movies, Dinner out, etc.</string>
     <string name="amount">Amount</string>
+    <string name="hint_amount">e.g. £100.00</string>
     <string name="otp_code">OTP Code</string>
+    <string name="account_image_desc">Account Icon</string>
+    <string name="title_activity_login">Sign in</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password (optional)</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+    <string name="title_login_hello_app">Hello World!</string>
 </resources>

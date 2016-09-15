@@ -16,14 +16,14 @@ import java.text.DecimalFormat;
 public class AccountAdapter extends ArrayAdapter<Accounts> {
 
     public AccountAdapter(Context context, Accounts[] a) {
-        super(context, R.layout.item_customer, a);
+        super(context, R.layout.item_account, a);
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(
                 Context.LAYOUT_INFLATER_SERVICE);
-        View customView = inflater.inflate(R.layout.item_customer, parent, false);
+        View customView = inflater.inflate(R.layout.item_account, parent, false);
 
         Accounts account = getItem(position);
         TextView accountTypeView = (TextView) customView.findViewById(R.id.account_type);

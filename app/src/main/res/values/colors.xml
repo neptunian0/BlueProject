@@ -9,5 +9,11 @@
 
     <color name="header_blue">#007EC1</color>
     <color name="account_image_tint">#e3ffffff</color>
+    <color name="greeting_image_tint">#32000000</color>
+    <color name="login_tint">#4DFFFFFF</color>
     <color name="white">#FFFFFF</color>
+
+    <color name="edittext_green">#10D800</color>
+    <color name="edittext_offwhite">#F2F2F2</color>
+    <color name="login_grey">#BFBFBF</color>
 </resources>

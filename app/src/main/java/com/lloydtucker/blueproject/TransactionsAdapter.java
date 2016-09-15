@@ -17,6 +17,7 @@ import java.util.Date;
  * Created by lloydtucker on 07/08/2016.
  */
 public class TransactionsAdapter extends ArrayAdapter<Transactions> {
+    private static final String TAG = TransactionsAdapter.class.getSimpleName();
 
     public TransactionsAdapter(Context context, Transactions[] t) {
         super(context, R.layout.item_transaction, t);
@@ -38,7 +39,7 @@ public class TransactionsAdapter extends ArrayAdapter<Transactions> {
             dateTime = modifyDateLayout(dateTime);
         }
         catch (ParseException ex){
-            Log.d("Exception", "" + ex);
+            Log.d(TAG, "ERROR:" + ex);
         }
         transactionDateDescription.setText(dateTime + "  "
                 + transaction.getTransactionDescription());

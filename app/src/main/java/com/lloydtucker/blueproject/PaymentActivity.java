@@ -1,11 +1,9 @@
 package com.lloydtucker.blueproject;
 
 import android.animation.LayoutTransition;
-import android.animation.TimeInterpolator;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -13,8 +11,6 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -34,24 +30,39 @@ import okhttp3.HttpUrl;
 import okhttp3.Response;
 
 public class PaymentActivity extends AppCompatActivity {
-    private static final TimeInterpolator sDecelerator = new DecelerateInterpolator();
-    private static final TimeInterpolator sAccelerator = new AccelerateInterpolator();
+    private static final String TAG = PaymentActivity.class.getSimpleName();
+    static final String PAYMENTS = "payments";
+
+    private final Runnable runProgressBar = new Runnable() {
+        @Override
+        public void run() {
+            progressBar.setVisibility(View.VISIBLE);
+        }
+    };
+    private final Runnable finishActivity = new Runnable() {
+        public void run() {
+            // *Now* go ahead and exit the activity
+            finish();
+        }
+    };
 
     private final String TAG_PAYMENT_STATUS = "paymentStatus";
     private final String TAG_PAYMENT_ID = "id";
-    private final String TAG_MOBILE_PHONE = "mobilePhone";
+    //private final String TAG_MOBILE_PHONE = "mobilePhone";
     private final String TAG_OTP_ERROR = "errorMessage";
     private final String TAG_PAYMENT_REFERENCE = "paymentReference";
     private final String TAG_TO_SORT_CODE = "toSortCode";
     private final String TAG_TO_ACCOUNT_NUMBER = "toAccountNumber";
     private final String TAG_PAYMENT_AMOUNT = "paymentAmount";
+    private final String TAG_OTP_CODE = "OTPCode";
+    private final String PENDING = "Pending";
+    private final String TWO_FA = "2FA required";
 
-    private TextInputLayout paymentSortCodeLayout;
     private TextView accountBalance, accountDetails, accountType, paymentFrom;
     private EditText paymentSortCode, paymentAccountNumber, paymentReference,
-            paymentAmount, OTPCodeField;
-    private Button submitPayment, submitOTP;
+    paymentAmount, OTPCodeField;
     private ProgressBar progressBar;
+    private Button submitPayment, submitOTP;
     private LinearLayout paymentFormLayout, paymentOTPLayout;
     private RelativeLayout paymentRelativeOTP, paymentAccountHeader, paymentRelativeForm,
             paymentLayout;
@@ -65,11 +76,15 @@ public class PaymentActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_payment);
 
-        imageView = (ImageView) findViewById(R.id.paymentImage);
-        accountType = (TextView) findViewById(R.id.paymentAccountType);
-        accountDetails = (TextView) findViewById(R.id.paymentAccountDetails);
-        accountBalance = (TextView) findViewById(R.id.paymentAccountBalance);
-        paymentFrom = (TextView) findViewById(R.id.paymentFrom);
+        //header of the activity
+        paymentAccountHeader = (RelativeLayout) findViewById(R.id.paymentAccountHeader);
+        imageView = (ImageView) paymentAccountHeader.findViewById(R.id.account_image);
+        accountType = (TextView) paymentAccountHeader.findViewById(R.id.account_type);
+        accountDetails = (TextView) paymentAccountHeader.findViewById(R.id.account_details);
+        accountBalance = (TextView) paymentAccountHeader.findViewById(R.id.account_balance);
+        paymentFrom = (TextView) paymentAccountHeader.findViewById(R.id.account_from);
+
+        //body of the activity
         paymentOTPLayout = (LinearLayout) findViewById(R.id.paymentOTPLayout);
         paymentRelativeOTP = (RelativeLayout) findViewById(R.id.paymentRelativeOTP);
         paymentRelativeForm = (RelativeLayout) findViewById(R.id.paymentRelativeForm);
@@ -77,7 +92,6 @@ public class PaymentActivity extends AppCompatActivity {
         paymentLayout = (RelativeLayout) findViewById(R.id.paymentLayout);
         submitPayment = (Button) findViewById(R.id.paymentMakePayment);
         submitOTP = (Button) findViewById(R.id.submitOTPCode);
-        paymentAccountHeader = (RelativeLayout) findViewById(R.id.paymentAccountHeader);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
         /*
@@ -240,9 +254,10 @@ public class PaymentActivity extends AppCompatActivity {
 
             //update the TextViews and ImageView data
             accountType.setText(accountT);
-            accountDetails.setText(accountNo + "   |   "
-                    + AccountAdapter.formatSortCode(sortCode));
-            accountBalance.setText("£" + AccountAdapter.formatBalance(accountBal));
+            String accountD = accountNo + "   |   " + AccountAdapter.formatSortCode(sortCode);
+            accountDetails.setText(accountD);
+            String accountB = "£" + AccountAdapter.formatBalance(accountBal);
+            accountBalance.setText(accountB);
             //try refactoring using the image view id instead
             AccountAdapter.pickAccountImage(accountT, imageView);
         }
@@ -267,19 +282,6 @@ public class PaymentActivity extends AppCompatActivity {
         }
     }
 
-    public void runSlideForm(LinearLayout linearLayout, Button button){
-        linearLayout.setAlpha(0);
-        button.setAlpha(0);
-
-        linearLayout.setTranslationY(-linearLayout.getHeight());
-        linearLayout.animate().setDuration(TransactionsActivity.duration/2).
-                translationY(0).alpha(1).setInterpolator(sDecelerator);
-
-        //want to fade in the Make Payment button
-        button.animate().setDuration(TransactionsActivity.duration/2).
-                alpha(1).setInterpolator(sDecelerator);
-    }
-
     public void submitPayment(View v){
         final String sc = paymentSortCode.getText().toString();
         final String an = paymentAccountNumber.getText().toString();
@@ -292,7 +294,7 @@ public class PaymentActivity extends AppCompatActivity {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                removeFormButton(paymentFormLayout, submitPayment);
+                removeFormButton(paymentFormLayout, submitPayment, runProgressBar);
             }
 
             @Override
@@ -328,10 +330,10 @@ public class PaymentActivity extends AppCompatActivity {
                 catch(Exception e){
                     e.printStackTrace();
                 }
-                if(paymentStatus.equals("Pending")){
+                if(paymentStatus.equals(PENDING)){
                     paymentComplete(toAccNo, toSortCode, payRef, payAmt);
                 }
-                else if(paymentStatus.equals("2FA required")){
+                else if(paymentStatus.equals(TWO_FA)){
                     // remove the payment information fields and show the OTP field
                     // send the OTP code in a PATCH request
                     paymentRelativeForm.setVisibility(View.GONE);
@@ -354,27 +356,11 @@ public class PaymentActivity extends AppCompatActivity {
         }.execute();
     }
 
-    public void removeFormButton(LinearLayout layout, Button button){
-        layout.animate().translationY(-layout.getHeight()).
-                alpha(0).setDuration(TransactionsActivity.duration/2).
-                setInterpolator(sAccelerator).withEndAction(new Runnable() {
-            @Override
-            public void run() {
-                progressBar.setVisibility(View.VISIBLE);
-            }
-        });
-
-        //fade the submit button
-        button.animate().setDuration(TransactionsActivity.duration/2).
-                alpha(0).setInterpolator(sAccelerator);
-    }
-
     public void submitOTPCode(View v) {
         new AsyncTask<Void, Void, Void>() {
             protected void onPreExecute(){
                 OTPCode = OTPCodeField.getText().toString();
-                Log.d("Response", OTPCode);
-                removeFormButton(paymentOTPLayout, submitOTP);
+                removeFormButton(paymentOTPLayout, submitOTP, runProgressBar);
             }
 
             @Override
@@ -408,26 +394,101 @@ public class PaymentActivity extends AppCompatActivity {
                     try {
                         String otpErr = json.getString(TAG_OTP_ERROR);
                         Toast.makeText(PaymentActivity.this, otpErr, Toast.LENGTH_LONG).show();
+                        runSlideForm(paymentOTPLayout, submitOTP);
                     } catch (JSONException je) {
-                        Log.d("Error", "Status code isn't 200 or 401");
+                        Log.d(TAG, "ERROR: Status code isn't 200 or 401");
                     }
                 }
             }
         }.execute();
     }
 
+    private void paymentComplete(String an, String sc, String pr, String am){
+        //confirmation message
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Payment Complete\n" +
+                "Account Number: " + an + "\n" +
+                "Sort Code: " + sc + "\n" +
+                "Payment Reference: " + pr + "\n" +
+                "Amount: £" + am);
+        builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                removeFormButton(paymentOTPLayout, submitOTP, finishActivity);
+                removeFrom();
+            }
+        });
+
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    public void runSlideForm(LinearLayout linearLayout, Button button){
+        linearLayout.setAlpha(0);
+        button.setAlpha(0);
+
+        linearLayout.setTranslationY(-linearLayout.getHeight());
+        linearLayout.animate().setDuration(MainActivity.duration/2).
+                translationY(0).alpha(1).setInterpolator(MainActivity.sDecelerator);
+
+        //want to fade in the Make Payment button
+        button.animate().setDuration(MainActivity.duration/2).
+                alpha(1).setInterpolator(MainActivity.sDecelerator);
+    }
+
+    public void removeFormButton(LinearLayout layout, Button button, final Runnable endAction){
+        layout.animate().translationY(-layout.getHeight()).
+                alpha(0).setDuration(MainActivity.duration/2).
+                setInterpolator(MainActivity.sAccelerator).withEndAction(endAction);
+
+        //fade the submit button
+        button.animate().setDuration(MainActivity.duration/2).
+                alpha(0).setInterpolator(MainActivity.sAccelerator);
+    }
+
+    @Override
+    public void onBackPressed(){
+        LinearLayout visableLL;
+        Button visableB;
+        if(paymentFormLayout.getVisibility() == View.VISIBLE){
+            visableLL = paymentFormLayout;
+            visableB = submitPayment;
+        }
+        else{
+            visableLL = paymentOTPLayout;
+            visableB = submitOTP;
+        }
+        removeFormButton(visableLL, visableB, finishActivity);
+        removeFrom();
+    }
+
+    public void removeFrom(){
+        LayoutTransition transition = paymentAccountHeader.getLayoutTransition();
+        transition.enableTransitionType(LayoutTransition.CHANGING);
+        paymentFrom.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+
+        // override transitions to skip the standard window animations
+        overridePendingTransition(0, 0);
+        TransactionsActivity.fromActivity = true;
+    }
+
     public String paymentJson(String sc, String an, String pr, String pa){
         return "{" +
-                "\"toAccountNumber\":\"" + an + "\"," +
-                "\"toSortCode\":\"" + sc + "\"," +
-                "\"paymentReference\":\"" + pr + "\"," +
-                "\"paymentAmount\":" + pa +
+                "\"" + TAG_TO_ACCOUNT_NUMBER + "\":\"" + an + "\"," +
+                "\"" + TAG_TO_SORT_CODE + "\":\"" + sc + "\"," +
+                "\"" + TAG_PAYMENT_REFERENCE + "\":\"" + pr + "\"," +
+                "\"" + TAG_PAYMENT_AMOUNT + "\":" + pa +
                 "}";
     }
 
     public String OTPJson(String o){
         return "{" +
-                "\"OTPCode\":\"" + o + "\"" +
+                "\"" + TAG_OTP_CODE + "\":\"" + o + "\"" +
                 "}";
     }
 
@@ -445,49 +506,28 @@ public class PaymentActivity extends AppCompatActivity {
     }
 
     public static HttpUrl buildURL(String accId){
-        HttpUrl url = new HttpUrl.Builder()
-                .scheme("https")
-                .host("bluebank.azure-api.net")
-                .addPathSegment("api")
-                .addPathSegment("v0.6.3")
-                .addPathSegment("accounts")
+        return new HttpUrl.Builder()
+                .scheme(MainActivity.HTTPS)
+                .host(MainActivity.BLUE_URI)
+                .addPathSegment(MainActivity.BLUE_API)
+                .addPathSegment(MainActivity.BLUE_VERSION)
+                .addPathSegment(MainActivity.ACCOUNTS)
                 .addPathSegment(accId)
-                .addPathSegment("payments")
+                .addPathSegment(PAYMENTS)
                 .build();
-        return url;
     }
 
     public static HttpUrl paymentURL(String accountId, String paymentId){
-        HttpUrl url = new HttpUrl.Builder()
-                .scheme("https")
-                .host("bluebank.azure-api.net")
-                .addPathSegment("api")
-                .addPathSegment("v0.6.3")
-                .addPathSegment("accounts")
+        return new HttpUrl.Builder()
+                .scheme(MainActivity.HTTPS)
+                .host(MainActivity.BLUE_URI)
+                .addPathSegment(MainActivity.BLUE_API)
+                .addPathSegment(MainActivity.BLUE_VERSION)
+                .addPathSegment(MainActivity.ACCOUNTS)
                 .addPathSegment(accountId)
-                .addPathSegment("payments")
+                .addPathSegment(PAYMENTS)
                 .addPathSegment(paymentId)
                 .build();
-        return url;
-    }
-
-    private void paymentComplete(String an, String sc, String pr, String am){
-        //confirmation message
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Payment Complete\n" +
-                "Account Number: " + an + "\n" +
-                "Sort Code: " + sc + "\n" +
-                "Payment Reference: " + pr + "\n" +
-                "Amount: £" + am);
-        builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                finish();
-            }
-        });
-
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
     }
 }
 

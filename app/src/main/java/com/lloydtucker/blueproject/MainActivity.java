@@ -1,5 +1,6 @@
 package com.lloydtucker.blueproject;
 
+import android.animation.TimeInterpolator;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -9,6 +10,8 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -28,6 +31,16 @@ import java.util.Locale;
 import okhttp3.HttpUrl;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener{
+    static final TimeInterpolator sDecelerator = new DecelerateInterpolator();
+    static final TimeInterpolator sAccelerator = new AccelerateInterpolator();
+    private static final int ANIM_DURATION = 500;
+    static final long duration = (long) (ANIM_DURATION * MainActivity.sAnimatorScale);
+
+    static final String HTTPS = "https";
+    static final String BLUE_URI = "bluebank.azure-api.net";
+    static final String BLUE_API = "api";
+    static final String BLUE_VERSION = "v0.6.3";
+    static final String ACCOUNTS = "accounts";
 
     private static final String TAG = MainActivity.class.getSimpleName();
     static float sAnimatorScale = 2;
@@ -36,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private TextView greetingView,greetingDateView;
     private ProgressBar mainProgressBar;
     private ArrayAdapter<Accounts> adapter;
+    static View selectedAccount;
     String response;
 
     /*
@@ -92,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        listView = (ListView) findViewById(R.id.list);
+        listView = (ListView) findViewById(R.id.accounts);
         listView.setOnItemClickListener(this); //clickable account items
         greetingView  = (TextView) findViewById(R.id.greeting);
         greetingDateView = (TextView) findViewById(R.id.greetDate);
@@ -262,6 +276,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Intent intent = new Intent(MainActivity.this, TransactionsActivity.class);
         int[] screenLocation = new int[2];
         v.getLocationOnScreen(screenLocation);
+        selectedAccount = v;
 
         intent.putExtra(TAG_ID, accounts[position].getId());
         intent.putExtra(TAG_ACCOUNT_TYPE, accounts[position].getAccountType());
