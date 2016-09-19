@@ -33,19 +33,6 @@ public class PaymentActivity extends AppCompatActivity {
     private static final String TAG = PaymentActivity.class.getSimpleName();
     static final String PAYMENTS = "payments";
 
-    private final Runnable runProgressBar = new Runnable() {
-        @Override
-        public void run() {
-            progressBar.setVisibility(View.VISIBLE);
-        }
-    };
-    private final Runnable finishActivity = new Runnable() {
-        public void run() {
-            // *Now* go ahead and exit the activity
-            finish();
-        }
-    };
-
     private final String TAG_PAYMENT_STATUS = "paymentStatus";
     private final String TAG_PAYMENT_ID = "id";
     //private final String TAG_MOBILE_PHONE = "mobilePhone";
@@ -274,8 +261,6 @@ public class PaymentActivity extends AppCompatActivity {
                     transition.enableTransitionType(LayoutTransition.CHANGING);
                     paymentFrom.setVisibility(View.VISIBLE);
 
-                    runSlideForm(paymentFormLayout, submitPayment);
-
                     return true;
                 }
             });
@@ -294,7 +279,6 @@ public class PaymentActivity extends AppCompatActivity {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                removeFormButton(paymentFormLayout, submitPayment, runProgressBar);
             }
 
             @Override
@@ -337,20 +321,7 @@ public class PaymentActivity extends AppCompatActivity {
                     // remove the payment information fields and show the OTP field
                     // send the OTP code in a PATCH request
                     paymentRelativeForm.setVisibility(View.GONE);
-                    paymentOTPLayout.setAlpha(0); //redundant, but needed
                     paymentRelativeOTP.setVisibility(View.VISIBLE);
-
-                    //fade in the OTP form
-                    ViewTreeObserver observer = paymentLayout.getViewTreeObserver();
-                    observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-                        @Override
-                        public boolean onPreDraw() {
-                            paymentLayout.getViewTreeObserver().
-                                    removeOnPreDrawListener(this);
-                            runSlideForm(paymentOTPLayout, submitOTP);
-                            return true;
-                        }
-                    });
                 }
             }
         }.execute();
@@ -360,7 +331,6 @@ public class PaymentActivity extends AppCompatActivity {
         new AsyncTask<Void, Void, Void>() {
             protected void onPreExecute(){
                 OTPCode = OTPCodeField.getText().toString();
-                removeFormButton(paymentOTPLayout, submitOTP, runProgressBar);
             }
 
             @Override
@@ -394,7 +364,6 @@ public class PaymentActivity extends AppCompatActivity {
                     try {
                         String otpErr = json.getString(TAG_OTP_ERROR);
                         Toast.makeText(PaymentActivity.this, otpErr, Toast.LENGTH_LONG).show();
-                        runSlideForm(paymentOTPLayout, submitOTP);
                     } catch (JSONException je) {
                         Log.d(TAG, "ERROR: Status code isn't 200 or 401");
                     }
@@ -414,67 +383,12 @@ public class PaymentActivity extends AppCompatActivity {
         builder.setNegativeButton("Close", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                removeFormButton(paymentOTPLayout, submitOTP, finishActivity);
-                removeFrom();
+                finish();
             }
         });
 
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
-    }
-
-    public void runSlideForm(LinearLayout linearLayout, Button button){
-        linearLayout.setAlpha(0);
-        button.setAlpha(0);
-
-        linearLayout.setTranslationY(-linearLayout.getHeight());
-        linearLayout.animate().setDuration(MainActivity.duration/2).
-                translationY(0).alpha(1).setInterpolator(MainActivity.sDecelerator);
-
-        //want to fade in the Make Payment button
-        button.animate().setDuration(MainActivity.duration/2).
-                alpha(1).setInterpolator(MainActivity.sDecelerator);
-    }
-
-    public void removeFormButton(LinearLayout layout, Button button, final Runnable endAction){
-        layout.animate().translationY(-layout.getHeight()).
-                alpha(0).setDuration(MainActivity.duration/2).
-                setInterpolator(MainActivity.sAccelerator).withEndAction(endAction);
-
-        //fade the submit button
-        button.animate().setDuration(MainActivity.duration/2).
-                alpha(0).setInterpolator(MainActivity.sAccelerator);
-    }
-
-    @Override
-    public void onBackPressed(){
-        LinearLayout visableLL;
-        Button visableB;
-        if(paymentFormLayout.getVisibility() == View.VISIBLE){
-            visableLL = paymentFormLayout;
-            visableB = submitPayment;
-        }
-        else{
-            visableLL = paymentOTPLayout;
-            visableB = submitOTP;
-        }
-        removeFormButton(visableLL, visableB, finishActivity);
-        removeFrom();
-    }
-
-    public void removeFrom(){
-        LayoutTransition transition = paymentAccountHeader.getLayoutTransition();
-        transition.enableTransitionType(LayoutTransition.CHANGING);
-        paymentFrom.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void finish() {
-        super.finish();
-
-        // override transitions to skip the standard window animations
-        overridePendingTransition(0, 0);
-        TransactionsActivity.fromActivity = true;
     }
 
     public String paymentJson(String sc, String an, String pr, String pa){

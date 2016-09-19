@@ -17,7 +17,7 @@
         android:textStyle="bold"
         android:text="04 Aug 2016 Amazon UK Marketplace"
         android:id="@+id/transactionDateDesc"
-        android:textSize="16dp"
+        android:textSize="@dimen/xsmall_font_size"
         android:fontFamily="sans-serif"/>
 
     <TextView

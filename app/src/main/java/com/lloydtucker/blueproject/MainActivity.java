@@ -16,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private TextView greetingView,greetingDateView;
     private ProgressBar mainProgressBar;
     private ArrayAdapter<Accounts> adapter;
+    private RelativeLayout greetingHeader;
     static View selectedAccount;
     String response;
 
@@ -110,6 +112,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         listView.setOnItemClickListener(this); //clickable account items
         greetingView  = (TextView) findViewById(R.id.greeting);
         greetingDateView = (TextView) findViewById(R.id.greetDate);
+        greetingHeader = (RelativeLayout) findViewById(R.id.greetingHeader);
         mainProgressBar = (ProgressBar) findViewById(R.id.mainProgressBar);
 
         //Make the API call
@@ -162,6 +165,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 }
                 if(customers[0] != null) {
                     getGreeting(greetingView, greetingDateView);
+                    greetingHeader.setAlpha(1);
                     getAccounts();
                 }
             }
@@ -212,6 +216,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     mainProgressBar.setVisibility(View.GONE);
                     adapter = new AccountAdapter(MainActivity.this, accounts);
                     listView.setAdapter(adapter);
+                    listView.setAlpha(1);
                 } catch (JSONException e) {
                     e.printStackTrace();
                     Log.d(TAG, "ERROR: JSONException");
@@ -274,9 +279,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void onItemClick(AdapterView<?> l, View v, int position, long id){
         // Then you start a new Activity via Intent
         Intent intent = new Intent(MainActivity.this, TransactionsActivity.class);
-        int[] screenLocation = new int[2];
-        v.getLocationOnScreen(screenLocation);
-        selectedAccount = v;
 
         intent.putExtra(TAG_ID, accounts[position].getId());
         intent.putExtra(TAG_ACCOUNT_TYPE, accounts[position].getAccountType());
@@ -284,11 +286,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         intent.putExtra(TAG_SORT_CODE, accounts[position].getSortCode());
         intent.putExtra(TAG_ACCOUNT_BALANCE, accounts[position].getAccountBalance());
         intent.putExtra(TAG_CUSTOMER_ID, customers[0].getId());
-        intent.putExtra(TAG_ACCOUNT_LEFT, screenLocation[0]);
-        intent.putExtra(TAG_ACCOUNT_TOP, screenLocation[1]);
         startActivity(intent);
-
-        //Don't want normal window animations to take place
-        overridePendingTransition(0, 0);
     }
 }

@@ -4,23 +4,23 @@
     <dimen name="button_margin_vertical">5dp</dimen>
     <dimen name="button_font_size">25sp</dimen>
 
-    <dimen name="xsmall_font_size">18sp</dimen>
-    <dimen name="small_font_size">24sp</dimen>
-    <dimen name="medium_font_size">30sp</dimen>
-    <dimen name="large_font_size">38sp</dimen>
-    <dimen name="xlarge_font_size">45sp</dimen>
+    <dimen name="xsmall_font_size">14sp</dimen>
+    <dimen name="small_font_size">22sp</dimen>
+    <dimen name="medium_font_size">24sp</dimen>
+    <dimen name="large_font_size">30sp</dimen>
+    <dimen name="xlarge_font_size">36sp</dimen>
 
-    <dimen name="margin_vertical">16dp</dimen>
+    <dimen name="margin_vertical">14dp</dimen>
     <dimen name="margin_horizontal">16dp</dimen>
     <dimen name="sm_margin_vertical">5dp</dimen>
     <dimen name="sm_margin_horizontal">5dp</dimen>
 
-    <dimen name="padding">16dp</dimen>
+    <dimen name="padding">8dp</dimen>
     <dimen name="padding_horizontal_sm">8dp</dimen>
     <dimen name="margin">16dp</dimen>
     <dimen name="divider">16dp</dimen>
 
-    <dimen name="account_image_sq_dim">130dp</dimen>
+    <dimen name="account_image_sq_dim">80dp</dimen>
 
     <dimen name="edittext_border_width">2.3dp</dimen>
     <dimen name="login_border_width">1.3dp</dimen>
