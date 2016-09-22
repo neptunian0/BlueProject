@@ -1,10 +1,27 @@
+/*
+Copyright (c) Microsoft
+All Rights Reserved
+Apache 2.0 License
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+
+See the Apache Version 2.0 License for specific language governing permissions and limitations under the License.
+ */
+
 package com.lloydtucker.blueproject.helpers;
 
 import com.microsoft.aad.adal.AuthenticationResult;
 
-/**
- * Created by lloydtucker on 19/09/2016.
- */
 public class Constants {
 
     public static final String SDK_VERSION = "1.0";
@@ -12,7 +29,7 @@ public class Constants {
     /**
      * UTF-8 encoding
      */
-    public final String UTF8_ENCODING = "UTF-8";
+    public static final String UTF8_ENCODING = "UTF-8";
 
     public static final String HEADER_AUTHORIZATION = "Authorization";
 
@@ -20,17 +37,23 @@ public class Constants {
 
     // -------------------------------AAD
     // PARAMETERS----------------------------------
-    public static String AUTHORITY_URL = "https://login.microsoftonline.com/GreenBankADB2C.onmicrosoft.com";
+    public static String AUTHORITY_URL = "https://login.microsoftonline.com/GreenBankADB2C.onmicrosoft.com/";
     public static String CLIENT_ID = "4e9fbd39-52ae-4a83-9b38-77a5521ff834";
-    public static String RESOURCE_ID = "https://bluebank.azure-api.net/greenbank/customers";
+    public static String[] SCOPES = {"4e9fbd39-52ae-4a83-9b38-77a5521ff834"};
+    public static String[] ADDITIONAL_SCOPES = {""};
     public static String REDIRECT_URL = "urn:ietf:wg:oauth:2.0:oob";
     public static String CORRELATION_ID = "";
     public static String USER_HINT = "";
     public static String EXTRA_QP = "";
+    public static String FB_POLICY = "B2C_1_todo_facebook_signin";
+    public static String EMAIL_SIGNIN_POLICY = "B2C_1_bb-sample-signin";
+    public static String EMAIL_SIGNUP_POLICY = "B2C_1_SiUp";
     public static boolean FULL_SCREEN = true;
     public static AuthenticationResult CURRENT_RESULT = null;
+
     // Endpoint we are targeting for the deployed WebAPI service
-    public static String SERVICE_URL = "http://10.0.1.44:8080/tasks";
+    //public static String SERVICE_URL = "https://kidventus.net/todoserver/tasks";
+    public static String SERVICE_URL = "https://bluebank.azure-api.net/greenbank/customers";
 
     // ------------------------------------------------------------------------------------------
 
@@ -40,4 +63,5 @@ public class Constants {
 
     public static final String KEY_NAME_ASK_BROKER_INSTALL = "test.settings.ask.broker";
     public static final String KEY_NAME_CHECK_BROKER = "test.settings.check.broker";
+
 }

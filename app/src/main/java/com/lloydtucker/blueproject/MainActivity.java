@@ -1,6 +1,5 @@
 package com.lloydtucker.blueproject;
 
-import android.animation.TimeInterpolator;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -10,8 +9,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -31,12 +28,7 @@ import java.util.Locale;
 
 import okhttp3.HttpUrl;
 
-public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener{
-    static final TimeInterpolator sDecelerator = new DecelerateInterpolator();
-    static final TimeInterpolator sAccelerator = new AccelerateInterpolator();
-    private static final int ANIM_DURATION = 500;
-    static final long duration = (long) (ANIM_DURATION * MainActivity.sAnimatorScale);
-
+public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
     static final String HTTPS = "https";
     static final String BLUE_URI = "bluebank.azure-api.net";
     static final String BLUE_API = "api";
@@ -47,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     static float sAnimatorScale = 2;
     //public final static String EXTRA_MESSAGE = "com.lloydtucker.testproject.CONTACTS";
     private ListView listView;
-    private TextView greetingView,greetingDateView;
+    private TextView greetingView, greetingDateView;
     private ProgressBar mainProgressBar;
     private ArrayAdapter<Accounts> adapter;
     private RelativeLayout greetingHeader;
@@ -86,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     static final String TAG_TRANSACTION_AMOUNT = "transactionAmount";
     static final String TAG_TRANSACTION_CURRENCY = "transactionCurrency";
 
-    private static final String TAG_CUSTOMERS = "customer";
+    private static final String TAG_CUSTOMERS = "customers";
     private static final String TAG_ACCOUNTS = "accounts";
     private static final String TAG_TRANSACTIONS = "transactions";
 
@@ -102,7 +94,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     //Contacts array
     Customers[] customers = new Customers[1];
     Accounts[] accounts = new Accounts[2];
-    public boolean contacts_retrieved = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         setContentView(R.layout.activity_main);
         listView = (ListView) findViewById(R.id.accounts);
         listView.setOnItemClickListener(this); //clickable account items
-        greetingView  = (TextView) findViewById(R.id.greeting);
+        greetingView = (TextView) findViewById(R.id.greeting);
         greetingDateView = (TextView) findViewById(R.id.greetDate);
         greetingHeader = (RelativeLayout) findViewById(R.id.greetingHeader);
         mainProgressBar = (ProgressBar) findViewById(R.id.mainProgressBar);
@@ -163,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     e.printStackTrace();
                     Log.d(TAG, "ERROR: JSONException");
                 }
-                if(customers[0] != null) {
+                if (customers[0] != null) {
                     getGreeting(greetingView, greetingDateView);
                     greetingHeader.setAlpha(1);
                     getAccounts();
@@ -175,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     /*
     * Get Accounts
     */
-    public void getAccounts(){
+    public void getAccounts() {
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected Void doInBackground(Void... voids) {
@@ -226,46 +217,46 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
 
-    public static HttpUrl buildURL(){
+    public static HttpUrl buildURL() {
         return new HttpUrl.Builder()
-                .scheme("https")
-                .host("bluebank.azure-api.net")
-                .addPathSegment("api")
-                .addPathSegment("v0.6.3")
-                .addPathSegment("customers")
+                .scheme(HTTPS)
+                .host(BLUE_URI)
+                .addPathSegment(BLUE_API)
+                .addPathSegment(BLUE_VERSION)
+                .addPathSegment(TAG_CUSTOMERS)
                 .build();
     }
 
-    public static HttpUrl buildURL(String s){
+    public static HttpUrl buildURL(String s) {
         return new HttpUrl.Builder()
-                .scheme("https")
-                .host("bluebank.azure-api.net")
-                .addPathSegment("api")
-                .addPathSegment("v0.6.3")
-                .addPathSegment("customers")
+                .scheme(HTTPS)
+                .host(BLUE_URI)
+                .addPathSegment(BLUE_API)
+                .addPathSegment(BLUE_VERSION)
+                .addPathSegment(TAG_CUSTOMERS)
                 .addPathSegment(s)
-                .addPathSegment("accounts")
+                .addPathSegment(TAG_ACCOUNTS)
                 .build();
     }
 
-    public boolean isOnline(){
+    public boolean isOnline() {
         ConnectivityManager cm = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netInfo = cm.getActiveNetworkInfo();
         return (netInfo != null && netInfo.isConnectedOrConnecting());
     }
 
-    public void getGreeting(TextView g, TextView gD){
+    public void getGreeting(TextView g, TextView gD) {
         //set the greeting text to good morning, good afternoon,
         //or good evening <name> and the date
         String greeting = "";
         Calendar c = Calendar.getInstance();
         int timeOfDay = c.get(Calendar.HOUR_OF_DAY);
-        if(timeOfDay >= 0 && timeOfDay < 12){
+        if (timeOfDay >= 0 && timeOfDay < 12) {
             greeting += "Good morning, ";
-        }else if(timeOfDay >= 12 && timeOfDay < 17){
+        } else if (timeOfDay >= 12 && timeOfDay < 17) {
             greeting += "Good afternoon, ";
-        }else if(timeOfDay >= 17 && timeOfDay < 24){
+        } else if (timeOfDay >= 17 && timeOfDay < 24) {
             greeting += "Good evening, ";
         }
         greeting += customers[0].getGivenName();
@@ -276,7 +267,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         gD.setText(dateFormat.format(new Date()));
     }
 
-    public void onItemClick(AdapterView<?> l, View v, int position, long id){
+    public void onItemClick(AdapterView<?> l, View v, int position, long id) {
         // Then you start a new Activity via Intent
         Intent intent = new Intent(MainActivity.this, TransactionsActivity.class);
 

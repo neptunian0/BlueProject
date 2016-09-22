@@ -33,4 +33,15 @@ public class Constants {
 
     static final String TABLE_WORKITEM = "WorkItem";
     public static final String SHARED_PREFERENCE_NAME = "com.example.com.test.settings";
+
+    /*
+     * Login Activity Constants
+     */
+    public static String USERNAME = "test-lt@GreenBankADB2C.onmicrosoft.com";
+
+    /*
+     * Main Activity Constants
+     */
+    public static String blue_uri = "https://bluebank.azure-api.net/api/v0.6.3/";
+    public static String green_uri = "https://greenbank.azure-api.net/PCA/";
 }

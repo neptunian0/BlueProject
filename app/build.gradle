@@ -28,4 +28,5 @@ dependencies {
     compile('com.microsoft.aad:adal:2.0.1-alpha') {
         exclude group: 'com.android.support'
     } // Recent version is 2.0.1-alpha
+    compile 'com.google.android.gms:play-services-appindexing:8.1.0'
 }
