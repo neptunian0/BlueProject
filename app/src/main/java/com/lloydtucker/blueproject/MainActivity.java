@@ -293,17 +293,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     public void onItemClick(AdapterView<?> l, View v, int position, long id) {
-        if(!accounts[position].getSortCode().equals("606162")) {
-            // Then you start a new Activity via Intent
-            Intent intent = new Intent(MainActivity.this, TransactionsActivity.class);
+        // Then you start a new Activity via Intent
+        Intent intent = new Intent(MainActivity.this, TransactionsActivity.class);
 
-            intent.putExtra(TAG_ID, accounts[position].getId());
-            intent.putExtra(TAG_ACCOUNT_FRIENDLY_NAME, accounts[position].getAccountFriendlyName());
-            intent.putExtra(TAG_ACCOUNT_NUMBER, accounts[position].getAccountNumber());
-            intent.putExtra(TAG_SORT_CODE, accounts[position].getSortCode());
-            intent.putExtra(TAG_ACCOUNT_BALANCE, accounts[position].getAccountBalance());
-            intent.putExtra(TAG_CUSTOMER_ID, customers[0].getId());
-            startActivity(intent);
-        }
+        intent.putExtra(TAG_ID, accounts[position].getId());
+        intent.putExtra(TAG_ACCOUNT_FRIENDLY_NAME, accounts[position].getAccountFriendlyName());
+        intent.putExtra(TAG_ACCOUNT_NUMBER, accounts[position].getAccountNumber());
+        intent.putExtra(TAG_SORT_CODE, accounts[position].getSortCode());
+        intent.putExtra(TAG_ACCOUNT_BALANCE, accounts[position].getAccountBalance());
+        intent.putExtra(TAG_CUSTOMER_ID, customers[0].getId());
+        startActivity(intent);
     }
 }

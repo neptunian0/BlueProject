@@ -1,7 +1,6 @@
 package com.lloydtucker.blueproject;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -24,12 +24,15 @@ import okhttp3.HttpUrl;
 
 public class TransactionsActivity extends Activity {
     private static final String TAG = TransactionsActivity.class.getSimpleName();
+    static final String TAG_TRANSACTION_DATE = "transactionDate";
+    static final String TAG_TRANSACTION_DESCRIPTION = "transactioDescription";
     static final String TRANSACTIONS = "transactions";
     static final String SORT_ORDER = "sortOrder";
     static final String TRANSACTION_DATE_TIME_DESC = "-transactionDateTime";
 
 
     private ListView transactionsList;
+    private ProgressBar progressBar;
     private ArrayAdapter<Transactions> adapter;
     private TextView accountBalance, accountDetails, accountType;
     private ImageView imageView;
@@ -45,16 +48,21 @@ public class TransactionsActivity extends Activity {
         setContentView(R.layout.activity_transactions);
 
         transactionAccount = (RelativeLayout) findViewById(R.id.transactionAccount);
+        transactionAccount.setBackgroundResource(R.drawable.green_account_rounded_corner);
         imageView = (ImageView) transactionAccount.findViewById(R.id.account_image);
         accountType = (TextView) transactionAccount.findViewById(R.id.account_type);
         accountDetails = (TextView) transactionAccount.findViewById(R.id.account_details);
         accountBalance = (TextView) transactionAccount.findViewById(R.id.account_balance);
+        progressBar = (ProgressBar) findViewById(R.id.transactionProgressBar);
 
         //Other three items in the activity
         transactionsList = (ListView) findViewById(R.id.transactionList);
-        paymentButton = (Button) findViewById(R.id.paymentButton);
         RelativeLayout transactionsLayout = (RelativeLayout)
                 findViewById(R.id.transactionsLayout);
+
+        //Make the API call
+        //clear the old data
+        loadTransactions();
 
         //Unpack the bundle
         Bundle extras = getIntent().getExtras();
@@ -68,9 +76,6 @@ public class TransactionsActivity extends Activity {
             accountBal = extras.getDouble(MainActivity.TAG_ACCOUNT_BALANCE);
             custId = extras.getString(MainActivity.TAG_CUSTOMER_ID);
         }
-        //Make the API call
-        //clear the old data
-        loadContent();
 
         //update the TextViews and ImageView data
         accountType.setText(accountT);
@@ -83,17 +88,18 @@ public class TransactionsActivity extends Activity {
         AccountAdapter.pickAccountImage(accountT, imageView);
     }
 
-    public void loadContent(){
+    public void loadTransactions(){
         new AsyncTask<Void, Void, Void>() {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
+                progressBar.setVisibility(View.VISIBLE);
             }
 
             @Override
             protected Void doInBackground(Void... params){
                 try {
-                    response = ApiCall.GET(buildURL(accountId));
+                    response = GreenApiCall.GET(buildURL(accountId));
                 }catch(IOException e){
                     e.printStackTrace();
                 }
@@ -116,10 +122,8 @@ public class TransactionsActivity extends Activity {
                         Transactions tra = new Transactions();
 
                         tra.setId(c.getString(MainActivity.TAG_ID));
-                        tra.setTransactionDateTime(c.getString(
-                                MainActivity.TAG_TRANSACTION_DATE));
-                        tra.setTransactionDescription(c.getString(
-                                MainActivity.TAG_TRANSACTION_DESCRIPTION));
+                        tra.setTransactionDateTime(c.getString(TAG_TRANSACTION_DATE));
+                        tra.setTransactionDescription(c.getString(TAG_TRANSACTION_DESCRIPTION));
                         tra.setTransactionAmount(c.getDouble(
                                 MainActivity.TAG_TRANSACTION_AMOUNT));
 
@@ -134,6 +138,7 @@ public class TransactionsActivity extends Activity {
                 //convert ArrayList of Transactions to an Array
                 transArr = transactions.toArray(
                         new Transactions[transactions.size()]);
+                progressBar.setVisibility(View.GONE);
                 adapter = new TransactionsAdapter(TransactionsActivity.this, transArr);
                 transactionsList.setAdapter(adapter);
             }
@@ -143,24 +148,11 @@ public class TransactionsActivity extends Activity {
     public static HttpUrl buildURL(String accId){
         return new HttpUrl.Builder()
                 .scheme(MainActivity.HTTPS)
-                .host(MainActivity.BLUE_URI)
-                .addPathSegment(MainActivity.BLUE_API)
-                .addPathSegment(MainActivity.BLUE_VERSION)
+                .host(MainActivity.GREEN_URI)
+                .addPathSegment(MainActivity.GREEN_PCA)
                 .addPathSegment(MainActivity.ACCOUNTS)
                 .addPathSegment(accId)
                 .addPathSegment(TRANSACTIONS)
-                .addQueryParameter(SORT_ORDER, TRANSACTION_DATE_TIME_DESC)
                 .build();
-    }
-
-    public void makePayment(View v){
-        Intent intent = new Intent(TransactionsActivity.this, PaymentActivity.class);
-        intent.putExtra(MainActivity.TAG_ID, accountId);
-        intent.putExtra(MainActivity.TAG_ACCOUNT_FRIENDLY_NAME, accountT);
-        intent.putExtra(MainActivity.TAG_ACCOUNT_NUMBER, accountNo);
-        intent.putExtra(MainActivity.TAG_SORT_CODE, sortCode);
-        intent.putExtra(MainActivity.TAG_ACCOUNT_BALANCE, accountBal);
-        intent.putExtra(MainActivity.TAG_CUSTOMER_ID, custId);
-        startActivity(intent);
     }
 }

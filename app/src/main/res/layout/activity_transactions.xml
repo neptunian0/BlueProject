@@ -8,7 +8,6 @@
     <ListView
         android:id="@+id/transactionList"
         android:layout_below="@+id/transactionAccount"
-        android:layout_above="@+id/paymentButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin_horizontal"
@@ -17,20 +16,13 @@
     <include layout="@layout/item_account"
         android:id="@+id/transactionAccount"/>
 
-    <Button
-        android:id="@id/paymentButton"
-        android:layout_alignParentBottom="true"
-        android:layout_width="match_parent"
+    <ProgressBar
+        android:id="@+id/transactionProgressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/make_payment"
-        android:onClick="makePayment"
-        android:background="@drawable/button_rounded_corner"
-        android:layout_marginTop="@dimen/sm_margin_vertical"
-        android:layout_marginBottom="@dimen/margin_vertical"
-        android:layout_marginStart="@dimen/margin_horizontal"
-        android:layout_marginEnd="@dimen/margin_horizontal"
-        android:textColor="@color/white"
-        android:fontFamily="sans-serif-condensed"
-        android:textStyle="bold"
-        android:textSize="@dimen/button_font_size"/>
+        android:layout_centerInParent="true"
+        android:progressDrawable="@drawable/progress"
+        android:visibility="gone">
+    </ProgressBar>
 </RelativeLayout>
