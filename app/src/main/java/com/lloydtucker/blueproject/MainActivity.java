@@ -30,11 +30,16 @@ import okhttp3.HttpUrl;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
     static final String HTTPS = "https";
+    static final String BLUE_URI = "bluebank.azure-api.net";
     static final String GREEN_URI = "greenbank.azure-api.net";
+    static final String BLUE_API = "api";
     static final String GREEN_PCA = "PCA";
+    static final String BLUE_VERSION = "v0.6.3";
     static final String ACCOUNTS = "accounts";
 
     private static final String TAG = MainActivity.class.getSimpleName();
+    static float sAnimatorScale = 2;
+    //public final static String EXTRA_MESSAGE = "com.lloydtucker.testproject.CONTACTS";
     private ListView listView;
     private TextView greetingView, greetingDateView;
     private ProgressBar mainProgressBar;
@@ -78,6 +83,15 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private static final String TAG_ACCOUNTS = "accounts";
     private static final String TAG_TRANSACTIONS = "transactions";
 
+    /*
+    * ANIMATION TAGS
+    */
+    static final String TAG_ACCOUNT_TOP = "accountTop";
+    static final String TAG_ACCOUNT_LEFT = "accountLeft";
+
+    //JSON Array
+    //JSONArray contacts = new JSONArray();
+
     //Contacts array
     Customers[] customers = new Customers[1];
     Accounts[] accounts = new Accounts[1];
@@ -109,7 +123,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             protected Void doInBackground(Void... params) {
                 try {
                     response = GreenApiCall.GET(buildGreenURL());
-                    Log.d("Response", response);
                 } catch (IOException e) {
                     e.printStackTrace();
                     Log.d(TAG, "ERROR: IOException");
@@ -137,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         cus.setPostCode(c.getString(TAG_POST_CODE));
 
                         //assumes only one customer input from BlueBank
-                        customers[i] = cus;
+                        customers[0] = cus;
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -162,7 +175,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 String accountId = "";
                 //NEED TO GET THE ACCOUNT ID FOR THE ACCOUNT
                 try {
-                    response = GreenApiCall.GET(buildGreenURL(customers[1].getId()));
+                    response = GreenApiCall.GET(buildGreenURL(customers[0].getId()));
                 } catch (IOException e) {
                     e.printStackTrace();
                     Log.d(TAG, "ERROR: IOException");
@@ -280,15 +293,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     public void onItemClick(AdapterView<?> l, View v, int position, long id) {
-        // Then you start a new Activity via Intent
-        Intent intent = new Intent(MainActivity.this, TransactionsActivity.class);
+        if(!accounts[position].getSortCode().equals("606162")) {
+            // Then you start a new Activity via Intent
+            Intent intent = new Intent(MainActivity.this, TransactionsActivity.class);
 
-        intent.putExtra(TAG_ID, accounts[position].getId());
-        intent.putExtra(TAG_ACCOUNT_FRIENDLY_NAME, accounts[position].getAccountFriendlyName());
-        intent.putExtra(TAG_ACCOUNT_NUMBER, accounts[position].getAccountNumber());
-        intent.putExtra(TAG_SORT_CODE, accounts[position].getSortCode());
-        intent.putExtra(TAG_ACCOUNT_BALANCE, accounts[position].getAccountBalance());
-        intent.putExtra(TAG_CUSTOMER_ID, customers[0].getId());
-        startActivity(intent);
+            intent.putExtra(TAG_ID, accounts[position].getId());
+            intent.putExtra(TAG_ACCOUNT_FRIENDLY_NAME, accounts[position].getAccountFriendlyName());
+            intent.putExtra(TAG_ACCOUNT_NUMBER, accounts[position].getAccountNumber());
+            intent.putExtra(TAG_SORT_CODE, accounts[position].getSortCode());
+            intent.putExtra(TAG_ACCOUNT_BALANCE, accounts[position].getAccountBalance());
+            intent.putExtra(TAG_CUSTOMER_ID, customers[0].getId());
+            startActivity(intent);
+        }
     }
 }
