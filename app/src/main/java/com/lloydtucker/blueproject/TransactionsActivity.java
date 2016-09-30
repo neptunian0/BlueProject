@@ -59,7 +59,7 @@ public class TransactionsActivity extends Activity {
         //Unpack the bundle
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            accountT = extras.getString(MainActivity.TAG_ACCOUNT_TYPE);
+            accountT = extras.getString(MainActivity.TAG_ACCOUNT_FRIENDLY_NAME);
             accountNo = extras.getString(MainActivity.TAG_ACCOUNT_NUMBER);
             sortCode = extras.getString(MainActivity.TAG_SORT_CODE);
             accountId = extras.getString(MainActivity.TAG_ID);
@@ -156,7 +156,7 @@ public class TransactionsActivity extends Activity {
     public void makePayment(View v){
         Intent intent = new Intent(TransactionsActivity.this, PaymentActivity.class);
         intent.putExtra(MainActivity.TAG_ID, accountId);
-        intent.putExtra(MainActivity.TAG_ACCOUNT_TYPE, accountT);
+        intent.putExtra(MainActivity.TAG_ACCOUNT_FRIENDLY_NAME, accountT);
         intent.putExtra(MainActivity.TAG_ACCOUNT_NUMBER, accountNo);
         intent.putExtra(MainActivity.TAG_SORT_CODE, sortCode);
         intent.putExtra(MainActivity.TAG_ACCOUNT_BALANCE, accountBal);

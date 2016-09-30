@@ -233,7 +233,7 @@ public class PaymentActivity extends AppCompatActivity {
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            accountT = extras.getString(MainActivity.TAG_ACCOUNT_TYPE);
+            accountT = extras.getString(MainActivity.TAG_ACCOUNT_FRIENDLY_NAME);
             accountNo = extras.getString(MainActivity.TAG_ACCOUNT_NUMBER);
             sortCode = extras.getString(MainActivity.TAG_SORT_CODE);
             accountId = extras.getString(MainActivity.TAG_ID);

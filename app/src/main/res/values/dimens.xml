@@ -7,7 +7,7 @@
     <dimen name="xsmall_font_size">14sp</dimen>
     <dimen name="small_font_size">22sp</dimen>
     <dimen name="medium_font_size">24sp</dimen>
-    <dimen name="large_font_size">30sp</dimen>
+    <dimen name="large_font_size">28sp</dimen>
     <dimen name="xlarge_font_size">36sp</dimen>
 
     <dimen name="margin_vertical">14dp</dimen>

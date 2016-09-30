@@ -31,10 +31,16 @@ public class AccountAdapter extends ArrayAdapter<Accounts> {
         TextView accountBalance = (TextView) customView.findViewById(R.id.account_balance);
         ImageView accountImage = (ImageView) customView.findViewById(R.id.account_image);
 
-        String accountType = account.getAccountType();
+        String accountType = account.getAccountFriendlyName();
         accountTypeView.setText(accountType);
         accountDetails.setText(account.getAccountNumber() + "   |   "
                 + formatSortCode(account.getSortCode()));
+
+        //set GreenBank account background to green
+        if(account.getSortCode().equals("606162")){
+            customView.setBackgroundResource(R.drawable.green_account_rounded_corner);
+        }
+
         String currency = "";
         switch(account.getAccountCurrency()){
             case "GBP":
@@ -51,7 +57,6 @@ public class AccountAdapter extends ArrayAdapter<Accounts> {
                 throw new IllegalArgumentException("Unsupported currency: "
                         + account.getAccountCurrency());
         }
-        DecimalFormat formatter = new DecimalFormat("#,##0.00");
         accountBalance.setText(currency + formatBalance(account.getAccountBalance()));
         pickAccountImage(accountType, accountImage);
         return customView;
@@ -81,11 +86,14 @@ public class AccountAdapter extends ArrayAdapter<Accounts> {
     public static void pickAccountImage(String s, ImageView i){
         int drawableSource = 0;
         switch(s){
-            case "Standard Current Account":
+            case "Current Account":
                 drawableSource = R.drawable.pound_coin;
                 break;
-            case "90-day Savings Account":
+            case "Savings Account":
                 drawableSource = R.drawable.piggy_bank;
+                break;
+            case "John Smith - Current Account":
+                drawableSource = R.drawable.wallet;
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported account type: "

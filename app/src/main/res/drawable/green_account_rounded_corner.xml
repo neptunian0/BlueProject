@@ -2,8 +2,8 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android" >
     <item android:drawable="@drawable/blue_login"></item>
 
-    <!-- we define background color -->
-    <solid android:color="#003B79" />
+    <!-- we define background color (Highland Green) -->
+    <solid android:color="#96A400" />
 
     <!-- add some padding for text inside -->
     <padding

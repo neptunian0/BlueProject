@@ -31,7 +31,9 @@ import okhttp3.HttpUrl;
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
     static final String HTTPS = "https";
     static final String BLUE_URI = "bluebank.azure-api.net";
+    static final String GREEN_URI = "greenbank.azure-api.net";
     static final String BLUE_API = "api";
+    static final String GREEN_PCA = "PCA";
     static final String BLUE_VERSION = "v0.6.3";
     static final String ACCOUNTS = "accounts";
 
@@ -92,8 +94,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     //JSONArray contacts = new JSONArray();
 
     //Contacts array
-    Customers[] customers = new Customers[1];
-    Accounts[] accounts = new Accounts[2];
+    Customers[] customers = new Customers[2];
+    Accounts[] accounts = new Accounts[3];
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -108,6 +110,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         //Make the API call
         getCustomers();
+        getGreenCustomers();
     }
 
     private void getCustomers() {
@@ -155,8 +158,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     Log.d(TAG, "ERROR: JSONException");
                 }
                 if (customers[0] != null) {
-                    getGreeting(greetingView, greetingDateView);
-                    greetingHeader.setAlpha(1);
                     getAccounts();
                 }
             }
@@ -202,6 +203,123 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
                         accounts[i] = acc;
                     }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.d(TAG, "ERROR: JSONException");
+                }
+            }
+        }.execute();
+    }
+
+    private void getGreenCustomers() {
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected void onPreExecute() {
+                super.onPreExecute();
+                mainProgressBar.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            protected Void doInBackground(Void... params) {
+                try {
+                    response = GreenApiCall.GET(buildGreenURL());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.d(TAG, "ERROR: IOException");
+                }
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                //Parse the response string here
+                try {
+                    JSONArray jsonArr = new JSONArray(response);
+
+                    // looping through All Contacts
+                    //should be i < jsonArr.length(), but only want 10 customers
+                    for (int i = 0; i < jsonArr.length() && i < 10; i++) {
+                        JSONObject c = jsonArr.getJSONObject(i);
+                        Customers cus = new Customers();
+
+                        cus.setId(c.getString(TAG_ID));
+                        cus.setGivenName(c.getString(TAG_GIVEN_NAME));
+                        cus.setFamilyName(c.getString(TAG_FAMILY_NAME));
+                        cus.setTown(c.getString(TAG_TOWN));
+                        cus.setPostCode(c.getString(TAG_POST_CODE));
+
+                        //assumes only one customer input from BlueBank
+                        customers[i+1] = cus;
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.d(TAG, "ERROR: JSONException");
+                }
+                if (customers[1] != null) {
+                    getGreeting(greetingView, greetingDateView);
+                    greetingHeader.setAlpha(1);
+                    getGreenAccounts();
+                }
+            }
+        }.execute();
+    }
+
+    /*
+    * Get Accounts
+    */
+    public void getGreenAccounts() {
+        new AsyncTask<Void, Void, Void>() {
+            @Override
+            protected Void doInBackground(Void... voids) {
+                String accountId = "";
+                //NEED TO GET THE ACCOUNT ID FOR THE ACCOUNT
+                try {
+                    response = GreenApiCall.GET(buildGreenURL(customers[1].getId()));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Log.d(TAG, "ERROR: IOException");
+                }
+
+                //PARSE THE JSON TO GET THE ACCOUNT ID
+                try{
+                    JSONArray jsonArr = new JSONArray(response);
+                    JSONObject jsonObj = jsonArr.getJSONObject(0);//assumes only one account
+                    accountId = jsonObj.getString(TAG_ID);
+                }
+                catch(JSONException e){
+                    e.printStackTrace();
+                    Log.d(TAG, "ERROR: JSONException");
+                }
+
+                //ACQUIRE THE ADDITIONAL ACCOUNT DETAILS USING THE ACCOUNT ID
+                try{
+                    response = GreenApiCall.GET(buildGreenAccountURL(accountId));
+                }
+                catch(IOException e){
+                    e.printStackTrace();
+                    Log.d(TAG, "ERROR: IOException");
+                }
+
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+                try {
+                    JSONObject jsonObj = new JSONObject(response);
+                    Accounts acc = new Accounts();
+
+                    acc.setId(jsonObj.getString(TAG_ID));
+                    acc.setSortCode(jsonObj.getString(TAG_SORT_CODE));
+                    acc.setAccountNumber(jsonObj.getString(TAG_ACCOUNT_NUMBER));
+                    acc.setAccountType(jsonObj.getString(TAG_ACCOUNT_TYPE));
+                    acc.setAccountFriendlyName(jsonObj.getString(TAG_ACCOUNT_FRIENDLY_NAME));
+                    acc.setAccountBalance(jsonObj.getDouble(TAG_ACCOUNT_BALANCE));
+                    acc.setAccountCurrency(jsonObj.getString(TAG_ACCOUNT_CURRENCY));
+
+                    accounts[2] = acc; //assumes two accounts from BlueBank
 
                     //render the loaded information
                     mainProgressBar.setVisibility(View.GONE);
@@ -239,6 +357,36 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 .build();
     }
 
+    public static HttpUrl buildGreenURL() {
+        return new HttpUrl.Builder()
+                .scheme(HTTPS)
+                .host(GREEN_URI)
+                .addPathSegment(GREEN_PCA)
+                .addPathSegment(TAG_CUSTOMERS)
+                .build();
+    }
+
+    public static HttpUrl buildGreenURL(String s) {
+        return new HttpUrl.Builder()
+                .scheme(HTTPS)
+                .host(GREEN_URI)
+                .addPathSegment(GREEN_PCA)
+                .addPathSegment(TAG_CUSTOMERS)
+                .addPathSegment(s)
+                .addPathSegment(TAG_ACCOUNTS)
+                .build();
+    }
+
+    public static HttpUrl buildGreenAccountURL(String s) {
+        return new HttpUrl.Builder()
+                .scheme(HTTPS)
+                .host(GREEN_URI)
+                .addPathSegment(GREEN_PCA)
+                .addPathSegment(TAG_ACCOUNTS)
+                .addPathSegment(s)
+                .build();
+    }
+
     public boolean isOnline() {
         ConnectivityManager cm = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -259,7 +407,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         } else if (timeOfDay >= 17 && timeOfDay < 24) {
             greeting += "Good evening, ";
         }
-        greeting += customers[0].getGivenName();
+        greeting += customers[1].getGivenName();
         g.setText(greeting);
 
         //set the date at the bottom of the header greeting
@@ -268,15 +416,17 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     public void onItemClick(AdapterView<?> l, View v, int position, long id) {
-        // Then you start a new Activity via Intent
-        Intent intent = new Intent(MainActivity.this, TransactionsActivity.class);
+        if(!accounts[position].getSortCode().equals("606162")) {
+            // Then you start a new Activity via Intent
+            Intent intent = new Intent(MainActivity.this, TransactionsActivity.class);
 
-        intent.putExtra(TAG_ID, accounts[position].getId());
-        intent.putExtra(TAG_ACCOUNT_TYPE, accounts[position].getAccountType());
-        intent.putExtra(TAG_ACCOUNT_NUMBER, accounts[position].getAccountNumber());
-        intent.putExtra(TAG_SORT_CODE, accounts[position].getSortCode());
-        intent.putExtra(TAG_ACCOUNT_BALANCE, accounts[position].getAccountBalance());
-        intent.putExtra(TAG_CUSTOMER_ID, customers[0].getId());
-        startActivity(intent);
+            intent.putExtra(TAG_ID, accounts[position].getId());
+            intent.putExtra(TAG_ACCOUNT_FRIENDLY_NAME, accounts[position].getAccountFriendlyName());
+            intent.putExtra(TAG_ACCOUNT_NUMBER, accounts[position].getAccountNumber());
+            intent.putExtra(TAG_SORT_CODE, accounts[position].getSortCode());
+            intent.putExtra(TAG_ACCOUNT_BALANCE, accounts[position].getAccountBalance());
+            intent.putExtra(TAG_CUSTOMER_ID, customers[0].getId());
+            startActivity(intent);
+        }
     }
 }

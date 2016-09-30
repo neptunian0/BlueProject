@@ -35,6 +35,14 @@
                 android:src="@drawable/bluenose"
                 android:tint="@color/greeting_image_tint"/>
 
+            <ImageView
+                android:id="@+id/ulsterBanner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/white_ulster_banner"
+                android:paddingTop="@dimen/padding"
+                android:layout_centerHorizontal="true"/>
+
             <TextView
                 android:id="@+id/greetDate"
                 android:layout_width="wrap_content"

@@ -85,6 +85,7 @@ public class LoginActivity extends AppCompatActivity {
                             if (result != null && !result.getToken().isEmpty()) {
                                 setLocalToken(result);
                                 LoginActivity.sResult = result;
+                                GreenApiCall.setBearer(result.getToken());
                                 Toast.makeText(getApplicationContext(),
                                         "Token is returned", Toast.LENGTH_SHORT).show();
                                 //TODO: Remove this log line
