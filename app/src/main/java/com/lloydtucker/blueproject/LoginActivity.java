@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.Window;
 import android.widget.Toast;
 
+import com.lloydtucker.blueproject.helpers.Constants;
 import com.microsoft.aad.adal.AuthenticationCallback;
 import com.microsoft.aad.adal.AuthenticationContext;
 import com.microsoft.aad.adal.AuthenticationResult;
@@ -86,8 +87,8 @@ public class LoginActivity extends AppCompatActivity {
                                 setLocalToken(result);
                                 LoginActivity.sResult = result;
                                 GreenApiCall.setBearer(result.getToken());
-                                Toast.makeText(getApplicationContext(),
-                                        "Token is returned", Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(getApplicationContext(),
+                                //        "Token is returned", Toast.LENGTH_SHORT).show();
                                 //TODO: Remove this log line
                                 Log.d("Response", result.getToken());
                                 openMainActivity();
@@ -102,7 +103,7 @@ public class LoginActivity extends AppCompatActivity {
             SimpleAlertDialog.showAlertDialog(LoginActivity.this, "Exception caught",
                     e.getMessage());
         }
-        Toast.makeText(LoginActivity.this, TAG + "done", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(LoginActivity.this, TAG + "done", Toast.LENGTH_SHORT).show();
     }
 
     //this method gives back a username to put into the login field
