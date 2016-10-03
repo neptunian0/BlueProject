@@ -1,89 +1,77 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    tools:context="com.lloydtucker.blueproject.MainActivity">
+    tools:context="com.lloydtucker.blueproject.MainActivity"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
-    <ProgressBar
-        android:id="@+id/mainProgressBar"
-        style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:progressDrawable="@drawable/progress" >
-    </ProgressBar>
+    <RelativeLayout
+        android:id="@+id/greetingHeader"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:alpha="0">
+
+        <ImageView
+            android:id="@+id/bluenose"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/bluenose"
+            android:contentDescription="@string/greetingImageDescription"
+            android:tint="@color/greeting_image_tint"/>
+
+        <ImageView
+            android:id="@+id/ulsterBanner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/white_ulster_banner"
+            android:contentDescription="@string/ulsterBannerDescription"
+            android:paddingTop="@dimen/padding"
+            android:layout_centerHorizontal="true"/>
+
+        <TextView
+            android:id="@+id/greetDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/bluenose"
+            android:textSize="@dimen/xsmall_font_size"
+            android:paddingBottom="@dimen/padding"
+            android:paddingLeft="@dimen/padding"
+            android:paddingRight="@dimen/padding"
+            android:textColor="@android:color/white" />
+
+        <TextView
+            android:id="@+id/greeting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/greetDate"
+            android:paddingStart="@dimen/padding"
+            android:paddingEnd="@dimen/padding"
+            android:textStyle="bold"
+            android:textSize="@dimen/large_font_size"
+            android:textColor="@android:color/white"
+            android:layout_alignParentStart="true" />
+    </RelativeLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight="5">
 
-        <RelativeLayout
-            android:id="@+id/greetingHeader"
-            android:layout_width="fill_parent"
-            android:layout_height="0dp"
-            android:layout_weight="2"
-            android:alpha="0">
-
-            <ImageView
-                android:id="@+id/bluenose"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@drawable/bluenose"
-                android:tint="@color/greeting_image_tint"/>
-
-            <ImageView
-                android:id="@+id/ulsterBanner"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/white_ulster_banner"
-                android:paddingTop="@dimen/padding"
-                android:layout_centerHorizontal="true"/>
-
-            <TextView
-                android:id="@+id/greetDate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignBottom="@+id/bluenose"
-                android:textSize="@dimen/xsmall_font_size"
-                android:paddingBottom="@dimen/padding"
-                android:paddingLeft="@dimen/padding"
-                android:paddingRight="@dimen/padding"
-                android:textColor="@android:color/white" />
-
-            <TextView
-                android:id="@+id/greeting"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_above="@id/greetDate"
-                android:paddingStart="@dimen/padding"
-                android:paddingEnd="@dimen/padding"
-                android:textStyle="bold"
-                android:textSize="@dimen/large_font_size"
-                android:textColor="@android:color/white"
-                android:layout_alignParentStart="true" />
-        </RelativeLayout>
-
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="0dp"
-            android:layout_weight="5">
-
-            <ListView
-                android:id="@+id/accounts"
-                android:alpha="0"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="@dimen/margin_horizontal"
-                android:paddingRight="@dimen/margin_horizontal"
-                android:paddingBottom="@dimen/margin_vertical"
-                android:paddingTop="@dimen/margin_vertical"
-                android:divider="@android:color/transparent"
-                android:dividerHeight="@dimen/divider" />
-        </LinearLayout>
+        <ListView
+            android:id="@+id/accounts"
+            android:alpha="0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/margin_horizontal"
+            android:paddingRight="@dimen/margin_horizontal"
+            android:paddingBottom="@dimen/margin_vertical"
+            android:paddingTop="@dimen/margin_vertical"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="@dimen/divider" />
     </LinearLayout>
-</RelativeLayout>
+</LinearLayout>

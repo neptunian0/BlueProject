@@ -1,5 +1,8 @@
-<resources>
-    <string name="app_name">BlueBank</string>
+<resources
+    tools:ignore="TypographyDashes"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <string name="app_name">GreenBank</string>
     <string name="payment_from">From:</string>
     <string name="make_payment">Make Payment</string>
     <string name="submit_payment">Submit Payment</string>
@@ -15,6 +18,8 @@
     <string name="otp_code">OTP Code</string>
     <string name="account_image_desc">Account Icon</string>
     <string name="title_activity_login">Sign in</string>
+    <string name="greetingImageDescription">Greeting header description</string>
+    <string name="ulsterBannerDescription">Greeting header description</string>
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>

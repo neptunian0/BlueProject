@@ -1,5 +1,6 @@
 package com.lloydtucker.blueproject;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -9,6 +10,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -21,6 +23,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -46,6 +49,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private ArrayAdapter<Accounts> adapter;
     private RelativeLayout greetingHeader;
     String response;
+
+    private static String loadingCustomer = "Loading your data...";
+    private static String loadingAccount = "Loading your account data...";
+    static String takingLonger = "This is taking longer than expected...";
 
     /*
      * CUSTOMER TAGS
@@ -89,8 +96,8 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     static final String TAG_ACCOUNT_TOP = "accountTop";
     static final String TAG_ACCOUNT_LEFT = "accountLeft";
 
-    //JSON Array
-    //JSONArray contacts = new JSONArray();
+    private static int timeoutTries = 0;
+    private ProgressDialog mMainProgressDialog;
 
     //Contacts array
     Customers[] customers = new Customers[1];
@@ -105,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         greetingView = (TextView) findViewById(R.id.greeting);
         greetingDateView = (TextView) findViewById(R.id.greetDate);
         greetingHeader = (RelativeLayout) findViewById(R.id.greetingHeader);
-        mainProgressBar = (ProgressBar) findViewById(R.id.mainProgressBar);
+        mMainProgressDialog = new ProgressDialog(this);
 
         //Make the API call
         getGreenCustomers();
@@ -116,14 +123,29 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                mainProgressBar.setVisibility(View.VISIBLE);
+                mMainProgressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                mMainProgressDialog.setMessage(loadingCustomer);
+                mMainProgressDialog.show();
             }
 
             @Override
             protected Void doInBackground(Void... params) {
                 try {
                     response = GreenApiCall.GET(buildGreenURL());
-                } catch (IOException e) {
+                }
+                //if timed out, try again at most 3 times
+                catch(SocketTimeoutException e){
+                    Log.d(TAG, "ERROR: SocketTimeout");
+                    if(timeoutTries < 3) {
+                        timeoutTries++;
+                        mMainProgressDialog.setMessage(loadingCustomer + " " + takingLonger);
+                        getGreenCustomers();
+                    }
+                    else{
+                        networkProblem(e, mMainProgressDialog, MainActivity.this);
+                    }
+                }
+                catch (IOException e) {
                     e.printStackTrace();
                     Log.d(TAG, "ERROR: IOException");
                 }
@@ -133,6 +155,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
+                timeoutTries = 0;//reset timeout tries counter
                 //Parse the response string here
                 try {
                     JSONArray jsonArr = new JSONArray(response);
@@ -174,27 +197,52 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             protected Void doInBackground(Void... voids) {
                 String accountId = "";
                 //NEED TO GET THE ACCOUNT ID FOR THE ACCOUNT
-                try {
-                    response = GreenApiCall.GET(buildGreenURL(customers[0].getId()));
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    Log.d(TAG, "ERROR: IOException");
-                }
+                if(accountIdNull()) {
+                    try {
+                        response = GreenApiCall.GET(buildGreenURL(customers[0].getId()));
+                    }
+                    //if timed out, try again at most 3 times
+                    catch (SocketTimeoutException e) {
+                        Log.d(TAG, "ERROR: SocketTimeout");
+                        if (timeoutTries < 3) {
+                            timeoutTries++;
+                            mMainProgressDialog.setMessage(loadingAccount + " " + takingLonger);
+                            getGreenAccounts();
+                        } else {
+                            networkProblem(e, mMainProgressDialog, MainActivity.this);
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Log.d(TAG, "ERROR: IOException");
+                    }
 
-                //PARSE THE JSON TO GET THE ACCOUNT ID
-                try{
-                    JSONArray jsonArr = new JSONArray(response);
-                    JSONObject jsonObj = jsonArr.getJSONObject(0);//assumes only one account
-                    accountId = jsonObj.getString(TAG_ID);
-                }
-                catch(JSONException e){
-                    e.printStackTrace();
-                    Log.d(TAG, "ERROR: JSONException");
+                    //PARSE THE JSON TO GET THE ACCOUNT ID
+                    try {
+                        JSONArray jsonArr = new JSONArray(response);
+                        JSONObject jsonObj = jsonArr.getJSONObject(0);//assumes only one account
+                        accountId = jsonObj.getString(TAG_ID);
+                        timeoutTries = 0; //reset timeout tries
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        Log.d(TAG, "ERROR: JSONException");
+                    }
                 }
 
                 //ACQUIRE THE ADDITIONAL ACCOUNT DETAILS USING THE ACCOUNT ID
                 try{
                     response = GreenApiCall.GET(buildGreenAccountURL(accountId));
+                }
+                //if timed out, try again at most 3 times
+                catch(SocketTimeoutException e){
+                    Log.d(TAG, "ERROR: SocketTimeout");
+                    if(timeoutTries < 3) {
+                        timeoutTries++;
+                        mMainProgressDialog.setMessage(loadingAccount + " " + takingLonger);
+                        getGreenAccounts();
+                    }
+                    else{
+                        networkProblem(e, mMainProgressDialog, MainActivity.this);
+                    }
                 }
                 catch(IOException e){
                     e.printStackTrace();
@@ -207,6 +255,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             @Override
             protected void onPostExecute(Void aVoid) {
                 super.onPostExecute(aVoid);
+                timeoutTries = 0;
                 try {
                     JSONObject jsonObj = new JSONObject(response);
                     Accounts acc = new Accounts();
@@ -222,7 +271,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     accounts[0] = acc; //assumes two accounts from BlueBank
 
                     //render the loaded information
-                    mainProgressBar.setVisibility(View.GONE);
+                    if(mMainProgressDialog.isShowing()){
+                        mMainProgressDialog.dismiss();
+                    }
                     adapter = new AccountAdapter(MainActivity.this, accounts);
                     listView.setAdapter(adapter);
                     listView.setAlpha(1);
@@ -303,5 +354,23 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         intent.putExtra(TAG_ACCOUNT_BALANCE, accounts[position].getAccountBalance());
         intent.putExtra(TAG_CUSTOMER_ID, customers[0].getId());
         startActivity(intent);
+    }
+
+    public static void networkProblem(SocketTimeoutException exc, ProgressDialog pD, Context context){
+        if (pD.isShowing()) {
+            pD.dismiss();
+        }
+        SimpleAlertDialog.showAlertDialog(context,
+                "Failed to get your data. Please close the app, ensure you have an internet " +
+                        "connection, and try again.", exc.getMessage());
+    }
+
+    public boolean accountIdNull(){
+        for(int i = 0; i < accounts.length; i++){
+            if(accounts[i] == null || accounts[i].getId() == null){
+                return true;
+            }
+        }
+        return false;
     }
 }

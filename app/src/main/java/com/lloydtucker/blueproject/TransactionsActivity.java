@@ -70,7 +70,8 @@ public class TransactionsActivity extends Activity {
             accountBal = extras.getDouble(MainActivity.TAG_ACCOUNT_BALANCE);
             custId = extras.getString(MainActivity.TAG_CUSTOMER_ID);
         }
-        
+
+        //
         //Make the API call
         //clear the old data
         loadTransactions();
