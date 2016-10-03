@@ -1,15 +1,14 @@
 package com.lloydtucker.blueproject;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
+import android.view.Window;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -18,6 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 
 import okhttp3.HttpUrl;
@@ -25,19 +25,17 @@ import okhttp3.HttpUrl;
 public class TransactionsActivity extends Activity {
     private static final String TAG = TransactionsActivity.class.getSimpleName();
     static final String TAG_TRANSACTION_DATE = "transactionDate";
-    static final String TAG_TRANSACTION_DESCRIPTION = "transactioDescription";
     static final String TRANSACTIONS = "transactions";
-    static final String SORT_ORDER = "sortOrder";
-    static final String TRANSACTION_DATE_TIME_DESC = "-transactionDateTime";
 
+    private static String loadTransactions = "Loading your transactions...";
+    private static int timeoutTries = 0;
 
     private ListView transactionsList;
-    private ProgressBar progressBar;
+    private ProgressDialog mTransactionProgressDialog;
     private ArrayAdapter<Transactions> adapter;
     private TextView accountBalance, accountDetails, accountType;
     private ImageView imageView;
     private RelativeLayout transactionAccount;
-    private Button paymentButton;
     private String custId, response, accountId, accountT, accountNo, sortCode;
     private double accountBal;
     private ArrayList<Transactions> transactions;
@@ -53,16 +51,12 @@ public class TransactionsActivity extends Activity {
         accountType = (TextView) transactionAccount.findViewById(R.id.account_type);
         accountDetails = (TextView) transactionAccount.findViewById(R.id.account_details);
         accountBalance = (TextView) transactionAccount.findViewById(R.id.account_balance);
-        progressBar = (ProgressBar) findViewById(R.id.transactionProgressBar);
+        mTransactionProgressDialog = new ProgressDialog(this);
 
         //Other three items in the activity
         transactionsList = (ListView) findViewById(R.id.transactionList);
         RelativeLayout transactionsLayout = (RelativeLayout)
                 findViewById(R.id.transactionsLayout);
-
-        //Make the API call
-        //clear the old data
-        loadTransactions();
 
         //Unpack the bundle
         Bundle extras = getIntent().getExtras();
@@ -76,6 +70,10 @@ public class TransactionsActivity extends Activity {
             accountBal = extras.getDouble(MainActivity.TAG_ACCOUNT_BALANCE);
             custId = extras.getString(MainActivity.TAG_CUSTOMER_ID);
         }
+        
+        //Make the API call
+        //clear the old data
+        loadTransactions();
 
         //update the TextViews and ImageView data
         accountType.setText(accountT);
@@ -93,14 +91,30 @@ public class TransactionsActivity extends Activity {
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
-                progressBar.setVisibility(View.VISIBLE);
+                mTransactionProgressDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                mTransactionProgressDialog.setMessage(loadTransactions);
+                mTransactionProgressDialog.show();
             }
 
             @Override
             protected Void doInBackground(Void... params){
                 try {
                     response = GreenApiCall.GET(buildURL(accountId));
-                }catch(IOException e){
+                }
+                catch(SocketTimeoutException e){
+                    Log.d(TAG, "ERROR: SocketTimeout");
+                    if(timeoutTries < 3) {
+                        timeoutTries++;
+                        mTransactionProgressDialog.setMessage(loadTransactions + " " +
+                                MainActivity.takingLonger);
+                        loadTransactions();
+                    }
+                    else{
+                        MainActivity.networkProblem(e, mTransactionProgressDialog,
+                                TransactionsActivity.this);
+                    }
+                }
+                catch(IOException e){
                     e.printStackTrace();
                 }
                 return null;
@@ -123,7 +137,8 @@ public class TransactionsActivity extends Activity {
 
                         tra.setId(c.getString(MainActivity.TAG_ID));
                         tra.setTransactionDateTime(c.getString(TAG_TRANSACTION_DATE));
-                        tra.setTransactionDescription(c.getString(TAG_TRANSACTION_DESCRIPTION));
+                        tra.setTransactionDescription(c.getString(
+                                MainActivity.TAG_TRANSACTION_DESCRIPTION));
                         tra.setTransactionAmount(c.getDouble(
                                 MainActivity.TAG_TRANSACTION_AMOUNT));
 
@@ -138,7 +153,9 @@ public class TransactionsActivity extends Activity {
                 //convert ArrayList of Transactions to an Array
                 transArr = transactions.toArray(
                         new Transactions[transactions.size()]);
-                progressBar.setVisibility(View.GONE);
+                if(mTransactionProgressDialog.isShowing()){
+                    mTransactionProgressDialog.dismiss();
+                }
                 adapter = new TransactionsAdapter(TransactionsActivity.this, transArr);
                 transactionsList.setAdapter(adapter);
             }
